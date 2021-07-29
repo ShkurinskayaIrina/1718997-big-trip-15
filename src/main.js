@@ -1,9 +1,9 @@
-// import { createSiteMenuTemplate } from './view/menu.js';
 import { createSiteMenuTemplate } from './view/menu.js';
 import { createFilterMenuTemplate } from './view/filter.js';
 import { createSiteSortTemplate } from './view/sort.js';
-import { createTripEventsTemplate } from './view/event.js';
-
+import { createEventListTemplate } from './view/event-list.js';
+import { createTripEventsItemTemplate } from './view/event-item.js';
+const TASK_COUNT = 3;
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
@@ -16,4 +16,9 @@ render(siteFiltersElement, createFilterMenuTemplate(), 'beforeend');
 
 const siteMainElement = document.querySelector('main').querySelector('.trip-events');
 render(siteMainElement, createSiteSortTemplate(), 'beforeend');
-render(siteMainElement, createTripEventsTemplate(), 'beforeend');
+render(siteMainElement, createEventListTemplate(), 'beforeend');
+for (let i = 0; i < TASK_COUNT; i++) {
+  render(siteMainElement, createTripEventsItemTemplate(), 'beforeend');
+}
+
+
