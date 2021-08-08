@@ -7,13 +7,30 @@ import { createEventHeader } from './view/event-header.js';
 import { createEventSectionOffers } from './view/event-offers.js';
 import { createEventSectionDestination } from './view/event-destination.js';
 import { createTripEventsItemTemplate } from './view/event-item.js';
-const TASK_COUNT = 3;
+import { generateTripEvent } from './view/util.js';
+const TASK_COUNT = 15;
+
+
+const tripEvents = new Array(TASK_COUNT).fill().map(()=>generateTripEvent());
+
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
+let tripСities;
+tripEvents.forEach((element) => {
+  //выводим название городов в trip-main
+  // добавить проверку на кол-во городов
+  !tripСities ? tripСities=element.destination.title : tripСities=`${tripСities} — ${element.destination.title}`;
+});
+
+const tripEventsSort = tripEvents.slice().sort((prev, next) => prev.date_from - next.date_from);
+// console.log(tripEventsSort);
+//выводим даты путешествия (начатьная и конечная)
+const tripDates=`${tripEventsSort[0].dateFrom.format('MMM D')} — ${tripEventsSort[tripEventsSort.length-1].dateTo.format('MMM D')}`;
+
 const siteTripMainElement = document.querySelector('.trip-main');
-render(siteTripMainElement, createMainTripTemplate(), 'afterbegin');
+render(siteTripMainElement, createMainTripTemplate(tripСities,tripDates), 'afterbegin');
 
 const siteMenuElement = document.querySelector('.trip-controls__navigation');
 render(siteMenuElement, createSiteMenuTemplate(), 'beforeend');
@@ -27,16 +44,17 @@ render(siteMainElement,createSiteSortTemplate(), 'beforeend');
 render(siteMainElement, createEditEventTemplate(), 'beforeend');
 
 const siteEventEdit = document.querySelector('.event--edit');
-render(siteEventEdit, createEventHeader(), 'afterbegin');
+render(siteEventEdit, createEventHeader(tripEventsSort[0]), 'afterbegin');
 
 const siteEventDetailsElement = document.querySelector('main').querySelector('.event__details');
 if (siteEventDetailsElement){
   //выводиться в будущем будет что-то одно: либо Offers, либо Destination
-  render(siteEventDetailsElement, createEventSectionOffers(), 'beforeend');
-  render(siteEventDetailsElement, createEventSectionDestination(), 'beforeend');
+  render(siteEventDetailsElement, createEventSectionOffers(tripEventsSort[0]), 'beforeend');
+  render(siteEventDetailsElement, createEventSectionDestination(tripEventsSort[0].destination), 'beforeend');
 }
 
 const siteTripEventsList = document.querySelector('.trip-events__list');
-for (let i = 0; i < TASK_COUNT; i++) {
-  render(siteTripEventsList, createTripEventsItemTemplate(), 'beforeend');
+for (let i = 1; i < TASK_COUNT; i++) {
+  render(siteTripEventsList, createTripEventsItemTemplate(tripEventsSort[i]), 'beforeend');
 }
+

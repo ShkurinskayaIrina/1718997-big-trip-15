@@ -1,8 +1,5 @@
-const eventSectionOffers =`
-<section class="event__section  event__section--offers">
-  <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-  <div class="event__available-offers">
+import { filterOffersByType } from './util.js';
+/*{
     <div class="event__offer-selector">
       <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
       <label class="event__offer-label" for="event-offer-luggage-1">
@@ -46,12 +43,47 @@ const eventSectionOffers =`
                 &plus;&euro;&nbsp;
         <span class="event__offer-price">40</span>
       </label>
-    </div>
-  </div>
-</section>`;
+    </div> } */
 
-const createEventSectionOffers = function () {
+
+const createEventOfferSelector =function (availableOffers, checkedOffers) {
+  let eventAvailableOffers = '';
+  for (const offer of availableOffers){
+    const {title, price} = offer;
+    let type='';
+    if (checkedOffers.find((checkedOffer)=>checkedOffer.title===title)) {
+      type='checkbox';
+    }
+    //разобраться с id и name
+    eventAvailableOffers=`${eventAvailableOffers}
+        <div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="${type}" name="event-offer-luggage" checked>
+          <label class="event__offer-label" for="event-offer-luggage-1">
+            <span class="event__offer-title">${title}</span>
+               &plus;&euro;&nbsp;
+            <span class="event__offer-price">${price}</span>
+          </label>
+        </div>`;
+  }
+  return eventAvailableOffers;
+};
+
+const createEventSectionOffers = function (tripEvent) {
+  const {type} = tripEvent;
+  const availableOffersByType = filterOffersByType(type);
+  let eventSectionOffers ='';
+  if  (availableOffersByType.length>0){
+    const eventOfferSelector = createEventOfferSelector(availableOffersByType,tripEvent.offers);
+    eventSectionOffers = `${eventSectionOffers}
+    <section class="event__section  event__section--offers">
+    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">
+        ${eventOfferSelector}
+      </div>
+    </section>`;
+  }
   return eventSectionOffers;
+
 };
 
 export {createEventSectionOffers};
