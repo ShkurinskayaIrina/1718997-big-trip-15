@@ -1,29 +1,29 @@
-// Everthing – 'Click New Event to create your first point' - В случае отсутствия точек маршрута вместо списка отображается
-// * Past — 'There are no past events now';
-// * Future — 'There are no future events now'.
+const QUANTITY_POINTS = 15;
 
-const eventTypes= [
-  'taxi',
-  'bus',
-  'train',
-  'ship',
-  'drive',
-  'flight',
-  'check-in',
-  'sightseeing',
-  'restaurant',
+const СITIES = [
+  'Amsterdam',
+  'Antalya',
+  'Bangkok',
+  'Chamonix',
+  'Dubai',
+  'Geneva',
+  'Hong Kong',
+  'Istanbul',
+  'Kuala Lumpur',
+  'Kuala',
+  'London',
+  'Macau',
+  'Moscow',
+  'Paris',
+  'Rio de Janeiro',
+  'Rostov-on-Don',
+  'Saint-Petersburg',
+  'Singapore',
+  'Tokyo',
+  'Vyshny Volochek',
 ];
 
-const destinationСities = [
-  'Chamonix',
-  'Amsterdam',
-  'Geneva',
-  'London',
-  'Vyshny Volochek',
-  'Rostov-on-Don',
-  'Moscow'];
-
-const additionalOptions = [
+const OFFERS = [
   {'type': 'taxi',
     'offers': [
       {
@@ -144,7 +144,7 @@ const additionalOptions = [
   },
 ];
 
-const destinationDescriptions =[
+const DESCRIPTIONS =[
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget.',
   'Fusce tristique felis at fermentum pharetra.',
@@ -158,4 +158,5 @@ const destinationDescriptions =[
   'In rutrum ac purus sit amet tempus.',
 ];
 
-export {eventTypes, destinationСities, destinationDescriptions, additionalOptions};
+
+export {СITIES, OFFERS, DESCRIPTIONS, QUANTITY_POINTS};

@@ -1,60 +1,39 @@
-import { createMainTripTemplate } from './view/main-trip.js';
-import { createSiteMenuTemplate } from './view/menu.js';
-import { createFilterMenuTemplate } from './view/filter.js';
-import { createSiteSortTemplate } from './view/sort.js';
-import { createEditEventTemplate } from './view/event-list.js';
-import { createEventHeader } from './view/event-header.js';
-import { createEventSectionOffers } from './view/event-offers.js';
-import { createEventSectionDestination } from './view/event-destination.js';
-import { createTripEventsItemTemplate } from './view/event-item.js';
-import { generateTripEvent } from './view/util.js';
-const TASK_COUNT = 15;
+import { INFO_MAIN_NULL } from './data.js';
+import { generateArrayMockPoints } from './mock/mock-utils.js';
+import { sortTripEvents, render, generateTripInfoMain} from './utils.js';
+import { showTripInfoTemplate } from './view/trip-info.js';
+import { showTripTabsTemplate } from './view/trip-tabs.js';
+import { showTripFiltersTemplate } from './view/trip-filters.js';
+import { showTripSortTemplate } from './view/trip-sort.js';
+import { showTripEventsListTemplate } from './view/trip-event-list.js';
+import { showTripEventsItemTemplate } from './view/trip-event-item.js';
+import { QUANTITY_POINTS } from './mock/mock-data.js';
+const tripEvents = generateArrayMockPoints();
+const tripEventsSortByDate = tripEvents.slice().sort(sortTripEvents);
 
+console.log(tripEventsSortByDate);
 
-const tripEvents = new Array(TASK_COUNT).fill().map(()=>generateTripEvent());
-
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
-
-let tripСities;
-tripEvents.forEach((element) => {
-  //выводим название городов в trip-main
-  // добавить проверку на кол-во городов
-  !tripСities ? tripСities=element.destination.title : tripСities=`${tripСities} — ${element.destination.title}`;
-});
-
-const tripEventsSort = tripEvents.slice().sort((prev, next) => prev.date_from - next.date_from);
-// console.log(tripEventsSort);
-//выводим даты путешествия (начатьная и конечная)
-const tripDates=`${tripEventsSort[0].dateFrom.format('MMM D')} — ${tripEventsSort[tripEventsSort.length-1].dateTo.format('MMM D')}`;
-
-const siteTripMainElement = document.querySelector('.trip-main');
-render(siteTripMainElement, createMainTripTemplate(tripСities,tripDates), 'afterbegin');
-
-const siteMenuElement = document.querySelector('.trip-controls__navigation');
-render(siteMenuElement, createSiteMenuTemplate(), 'beforeend');
-
-const siteFiltersElement = document.querySelector('.trip-controls__filters');
-render(siteFiltersElement, createFilterMenuTemplate(), 'beforeend');
-
-const siteMainElement = document.querySelector('main').querySelector('.trip-events');
-render(siteMainElement,createSiteSortTemplate(), 'beforeend');
-
-render(siteMainElement, createEditEventTemplate(), 'beforeend');
-
-const siteEventEdit = document.querySelector('.event--edit');
-render(siteEventEdit, createEventHeader(tripEventsSort[0]), 'afterbegin');
-
-const siteEventDetailsElement = document.querySelector('main').querySelector('.event__details');
-if (siteEventDetailsElement){
-  //выводиться в будущем будет что-то одно: либо Offers, либо Destination
-  render(siteEventDetailsElement, createEventSectionOffers(tripEventsSort[0]), 'beforeend');
-  render(siteEventDetailsElement, createEventSectionDestination(tripEventsSort[0].destination), 'beforeend');
+let infoMain = INFO_MAIN_NULL;
+if (tripEventsSortByDate.length > 0) {
+  infoMain = generateTripInfoMain(tripEventsSortByDate);
 }
+
+const tripMainBlock = document.querySelector('.trip-main');
+render(tripMainBlock, showTripInfoTemplate(infoMain), 'afterbegin');
+
+const tripControlsNavigationBlock = document.querySelector('.trip-controls__navigation');
+render(tripControlsNavigationBlock, showTripTabsTemplate(), 'beforeend');
+
+const tripControlsFiltersBlock = document.querySelector('.trip-controls__filters');
+render(tripControlsFiltersBlock, showTripFiltersTemplate(), 'beforeend');
+
+const tripEventsBlock = document.querySelector('main').querySelector('.trip-events');
+render(tripEventsBlock, showTripSortTemplate(), 'beforeend');
+
+render(tripEventsBlock, showTripEventsListTemplate(tripEventsSortByDate[0]), 'beforeend');
 
 const siteTripEventsList = document.querySelector('.trip-events__list');
-for (let i = 1; i < TASK_COUNT; i++) {
-  render(siteTripEventsList, createTripEventsItemTemplate(tripEventsSort[i]), 'beforeend');
-}
 
+for (let i = 1; i < QUANTITY_POINTS; i++) {
+  render(siteTripEventsList, showTripEventsItemTemplate(tripEventsSortByDate[i]), 'beforeend');
+}

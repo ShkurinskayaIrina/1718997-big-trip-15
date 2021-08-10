@@ -1,21 +1,15 @@
 import dayjs from 'dayjs';
+///написать ф-цию подсчета времени в пути
 
-const creatEventOfferTemplate = function (offers) {
-  let eventOfferTemplate = '';
-  offers.forEach((element) => {
-    eventOfferTemplate=`${eventOfferTemplate  }
-    <li class="event__offer">
-      <span class="event__offer-title">${element.title}</span>
+const creatEventOfferTemplate = (offers) =>
+  offers.map(({title, price}) =>
+    `<li class="event__offer">
+      <span class="event__offer-title">${title}</span>
         &plus;&euro;&nbsp;
-      <span class="event__offer-price">${element.price}</span>
-    </li>`;
-  });
-  return eventOfferTemplate;
-};
+      <span class="event__offer-price">${price}</span>
+    </li>`).join('');
 
-const createTripEventsItemTemplate = function (tripEvent) {
-  //написать ф-цию подсчета времени в пути
-  const {dateFrom, type, destination, dateTo, basePrice, offers, isFavorite} = tripEvent;
+export const showTripEventsItemTemplate = ({dateFrom, dateTo, destination,type, basePrice, isFavorite, offers}) =>{
   let classFavorite = '';
   if (isFavorite){
     classFavorite='event__favorite-btn--active';
@@ -26,7 +20,7 @@ const createTripEventsItemTemplate = function (tripEvent) {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${type} ${destination.title}</h3>
+      <h3 class="event__title">${type} ${destination.city}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="${dayjs(dateFrom).format('YYYY-MM-DDTHH:mm')}">${dayjs(dateFrom).format('HH:mm')}</time>
@@ -54,7 +48,4 @@ const createTripEventsItemTemplate = function (tripEvent) {
     </div>
   </li>
   `;
-
 };
-
-export {createTripEventsItemTemplate};
