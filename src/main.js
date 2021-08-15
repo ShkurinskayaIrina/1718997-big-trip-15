@@ -1,39 +1,84 @@
-import { INFO_MAIN_NULL } from './data.js';
 import { generateArrayMockPoints } from './mock/mock-utils.js';
-import { sortTripEvents, render, generateTripInfoMain} from './utils.js';
-import { showTripInfoTemplate } from './view/trip-info.js';
-import { showTripTabsTemplate } from './view/trip-tabs.js';
-import { showTripFiltersTemplate } from './view/trip-filters.js';
-import { showTripSortTemplate } from './view/trip-sort.js';
-import { showTripEventsListTemplate } from './view/trip-event-list.js';
-import { showTripEventsItemTemplate } from './view/trip-event-item.js';
-import { QUANTITY_POINTS } from './mock/mock-data.js';
+import { render, RenderPosition } from './utils/render.js';
+import { generateTripInfoMain, sortTripEvents } from './utils/trip.js';
+
+import TripInfoView from './view/trip-info.js';
+import SiteMenuView from './view/site-menu.js';
+import FiltersView from './view/filter.js';
+import NoEventView from './view/no-event.js';
+import SortView from './view/sort.js';
+import EventsListView from './view/events-list';
+import EventView from './view/event.js';
+import EventEditView from './view/event-edit.js';
+
 const tripEvents = generateArrayMockPoints();
 const tripEventsSortByDate = tripEvents.slice().sort(sortTripEvents);
 
-console.log(tripEventsSortByDate);
+// console.log(tripEventsSortByDate);
 
-let infoMain = INFO_MAIN_NULL;
 if (tripEventsSortByDate.length > 0) {
-  infoMain = generateTripInfoMain(tripEventsSortByDate);
+  const infoMain = generateTripInfoMain(tripEventsSortByDate);
+  const mainElement = document.querySelector('.trip-main');
+  render(mainElement, new TripInfoView(infoMain).getElement(), RenderPosition.AFTERBEGIN);
 }
 
-const tripMainBlock = document.querySelector('.trip-main');
-render(tripMainBlock, showTripInfoTemplate(infoMain), 'afterbegin');
+const siteMenuElement = document.querySelector('.trip-controls__navigation');
+render(siteMenuElement, new SiteMenuView().getElement(), RenderPosition.BEFOREEND);
 
-const tripControlsNavigationBlock = document.querySelector('.trip-controls__navigation');
-render(tripControlsNavigationBlock, showTripTabsTemplate(), 'beforeend');
 
-const tripControlsFiltersBlock = document.querySelector('.trip-controls__filters');
-render(tripControlsFiltersBlock, showTripFiltersTemplate(), 'beforeend');
+const filtersElement = document.querySelector('.trip-controls__filters');
+render(filtersElement, new FiltersView().getElement(), 'beforeend');
 
-const tripEventsBlock = document.querySelector('main').querySelector('.trip-events');
-render(tripEventsBlock, showTripSortTemplate(), 'beforeend');
+const tripEventsElement = document.querySelector('main').querySelector('.trip-events');
 
-render(tripEventsBlock, showTripEventsListTemplate(tripEventsSortByDate[0]), 'beforeend');
+const renderEvent = (eventListElement, tripEvent) => {
+  const eventComponent = new EventView(tripEvent);
+  const eventEditComponent = new EventEditView(tripEvent);
 
-const siteTripEventsList = document.querySelector('.trip-events__list');
+  const replaceEditToEvent = () => {
+    eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+  };
 
-for (let i = 1; i < QUANTITY_POINTS; i++) {
-  render(siteTripEventsList, showTripEventsItemTemplate(tripEventsSortByDate[i]), 'beforeend');
+  const replaceEventToEdit = () => {
+    eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+  };
+
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replaceEditToEvent();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
+  eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceEventToEdit();
+    document.addEventListener('keydown', onEscKeyDown);
+  });
+
+  eventEditComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceEditToEvent();
+    document.addEventListener('keydown', onEscKeyDown);
+  });
+
+  eventEditComponent.getElement().querySelector('form').addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    replaceEditToEvent();
+    document.removeEventListener('keydown', onEscKeyDown);
+  });
+
+  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
+if (tripEventsSortByDate.length > 0) {
+  render(tripEventsElement, new SortView().getElement(), 'beforeend');
+
+  const eventListComponent = new EventsListView();
+  render(tripEventsElement, eventListComponent.getElement(), RenderPosition.BEFOREEND);
+
+  for (let i = 0; i < tripEventsSortByDate.length; i++) {
+    renderEvent(eventListComponent.getElement(), tripEventsSortByDate[i]);
+  }
+} else {
+  render(tripEventsElement, new NoEventView().getElement(), 'beforeend');
 }

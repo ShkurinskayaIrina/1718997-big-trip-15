@@ -1,6 +1,6 @@
 import { POINT_TYPES } from '../data.js';
 import { СITIES, DESCRIPTIONS , QUANTITY_POINTS } from './mock-data.js';
-import { filterOffersByType } from '../utils.js';
+import { filterOffersByType } from '../utils/trip.js';
 
 import dayjs from 'dayjs';
 import minMax  from 'dayjs/plugin/minMax';
@@ -32,7 +32,7 @@ const getRandomDate = () => {
   return dayjs().add(daysGap, 'day');
 };
 
-const getRandonArrayPhotos = function () {
+const getRandonArrayPhotos = () => {
   const arrayPhotos = new Array();
 
   const quantityPhotos = getRandomInteger(1,5);
@@ -76,6 +76,5 @@ const generateMockPoint = () => {
     isFavorite : Boolean(getRandomInteger(0, 1)),
   };};
 
-const generateArrayMockPoints = () => new Array(QUANTITY_POINTS).fill().map(() => generateMockPoint());
+export const generateArrayMockPoints = () => new Array(QUANTITY_POINTS).fill().map(() => generateMockPoint());
 
-export {generateArrayMockPoints};

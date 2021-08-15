@@ -1,10 +1,6 @@
-import { OFFERS } from './mock/mock-data.js';
+import { OFFERS } from '../mock/mock-data.js';
 
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
-
-const generateTripInfoMain = (tripEventsArray) => {
+export const generateTripInfoMain = (tripEventsArray) => {
   const cityFirst = tripEventsArray[0].destination.city;
   let cityFinal = '';
 
@@ -30,8 +26,10 @@ const generateTripInfoMain = (tripEventsArray) => {
 
 };
 
-const sortTripEvents = (prev, next) => prev.dateFrom - next.dateFrom;
-const filterOffersByType = (type) => OFFERS.filter((offer) => offer.type === type);
+export const sortTripEvents = (prev, next) => prev.dateFrom - next.dateFrom;
 
+export const filterOffersByType = (type) => OFFERS.filter((offer) => offer.type === type);
 
-export {render, generateTripInfoMain, sortTripEvents, filterOffersByType};
+// export const humanizeTaskDueDate = (dueDate) => dayjs(dueDate).format('D MMMM');
+
+// ${humanizeTaskDueDate(dueDate)

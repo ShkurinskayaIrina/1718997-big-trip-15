@@ -1,7 +1,3 @@
-// Everthing – 'Click New Event to create your first point' - В случае отсутствия точек маршрута вместо списка отображается
-// * Past — 'There are no past events now';
-// * Future — 'There are no future events now'.
-
 const POINT_TYPES= [
   'Taxi',
   'Bus',
@@ -13,17 +9,12 @@ const POINT_TYPES= [
   'Sightseeing',
   'Restaurant',
 ];
-const INFO_MAIN_NULL = {
-  tripInfoTitle :'',
-  tripInfoDates :'',
-  tripInfoCost :'',
-};
 
-const FILTERS =[
-  'everything',
-  'future',
-  'past',
-];
+const FILTERS ={
+  'everything' : 'Click New Event to create your first point',
+  'future' : 'There are no future events now',
+  'past' : 'There are no past events now',
+};
 
 const TYPES_SORT = [
   'Day',
@@ -32,4 +23,5 @@ const TYPES_SORT = [
   'Price',
   'Offers',
 ];
-export {POINT_TYPES, INFO_MAIN_NULL, FILTERS, TYPES_SORT};
+
+export {POINT_TYPES, FILTERS, TYPES_SORT};

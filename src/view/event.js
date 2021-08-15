@@ -1,5 +1,6 @@
-import dayjs from 'dayjs';
 ///написать ф-цию подсчета времени в пути
+import { createElement } from '../utils/render.js';
+import dayjs from 'dayjs';
 
 const creatEventOfferTemplate = (offers) =>
   offers.map(({title, price}) =>
@@ -9,7 +10,7 @@ const creatEventOfferTemplate = (offers) =>
       <span class="event__offer-price">${price}</span>
     </li>`).join('');
 
-export const showTripEventsItemTemplate = ({dateFrom, dateTo, destination,type, basePrice, isFavorite, offers}) =>{
+export const showEventTemplate = ({dateFrom, dateTo, destination,type, basePrice, isFavorite, offers}) =>{
   let classFavorite = '';
   if (isFavorite){
     classFavorite='event__favorite-btn--active';
@@ -49,3 +50,27 @@ export const showTripEventsItemTemplate = ({dateFrom, dateTo, destination,type, 
   </li>
   `;
 };
+
+
+export default class Event {
+  constructor(tripEvent) {
+    this._tripEvent = tripEvent;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return showEventTemplate(this._tripEvent);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

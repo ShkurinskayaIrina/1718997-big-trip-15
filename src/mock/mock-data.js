@@ -1,6 +1,6 @@
-const QUANTITY_POINTS = 15;
+export const QUANTITY_POINTS = 5;
 
-const СITIES = [
+export const СITIES = [
   'Amsterdam',
   'Antalya',
   'Bangkok',
@@ -23,7 +23,7 @@ const СITIES = [
   'Vyshny Volochek',
 ];
 
-const OFFERS = [
+export const OFFERS = [
   {'type': 'taxi',
     'offers': [
       {
@@ -144,7 +144,7 @@ const OFFERS = [
   },
 ];
 
-const DESCRIPTIONS =[
+export const DESCRIPTIONS =[
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget.',
   'Fusce tristique felis at fermentum pharetra.',
@@ -157,6 +157,3 @@ const DESCRIPTIONS =[
   'Nunc fermentum tortor ac porta dapibus.',
   'In rutrum ac purus sit amet tempus.',
 ];
-
-
-export {СITIES, OFFERS, DESCRIPTIONS, QUANTITY_POINTS};

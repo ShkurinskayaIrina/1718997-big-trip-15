@@ -1,0 +1,37 @@
+import { FILTERS } from '../data.js';
+import { createElement } from '../utils/render.js';
+
+const tripFilters = () => Object.keys(FILTERS).map((filter) =>
+  `<div class="trip-filters__filter">
+    <input id="filter-${filter}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filter}" ${filter === 'everything' ? 'checked' : ''}>
+    <label class="trip-filters__filter-label" for="filter-${filter}">${filter}</label>
+  </div>`).join('');
+
+
+export const showFiltersTemplate = () =>
+  `<form class="trip-filters" action="#" method="get">
+    ${tripFilters()}
+    <button class="visually-hidden" type="submit">Accept filter</button>
+  </form>`;
+
+export default class Filters {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return showFiltersTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
