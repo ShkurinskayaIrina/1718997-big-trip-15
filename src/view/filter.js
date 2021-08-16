@@ -1,25 +1,37 @@
-const filterTemplate = `
-<form class="trip-filters" action="#" method="get">
-<div class="trip-filters__filter">
-  <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked>
-  <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
-</div>
+import { FILTERS } from '../data.js';
+import { createElement } from '../utils/render.js';
 
-<div class="trip-filters__filter">
-  <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future">
-  <label class="trip-filters__filter-label" for="filter-future">Future</label>
-</div>
+const tripFilters = () => Object.keys(FILTERS).map((filter) =>
+  `<div class="trip-filters__filter">
+    <input id="filter-${filter}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filter}" ${filter === 'everything' ? 'checked' : ''}>
+    <label class="trip-filters__filter-label" for="filter-${filter}">${filter}</label>
+  </div>`).join('');
 
-<div class="trip-filters__filter">
-  <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past">
-  <label class="trip-filters__filter-label" for="filter-past">Past</label>
-</div>
 
-<button class="visually-hidden" type="submit">Accept filter</button>
-</form>
-`;
-const createFilterMenuTemplate = function () {
-  return filterTemplate;
-};
+export const showFiltersTemplate = () =>
+  `<form class="trip-filters" action="#" method="get">
+    ${tripFilters()}
+    <button class="visually-hidden" type="submit">Accept filter</button>
+  </form>`;
 
-export {createFilterMenuTemplate};
+export default class Filters {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return showFiltersTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

@@ -1,60 +1,84 @@
-import { createMainTripTemplate } from './view/main-trip.js';
-import { createSiteMenuTemplate } from './view/menu.js';
-import { createFilterMenuTemplate } from './view/filter.js';
-import { createSiteSortTemplate } from './view/sort.js';
-import { createEditEventTemplate } from './view/event-list.js';
-import { createEventHeader } from './view/event-header.js';
-import { createEventSectionOffers } from './view/event-offers.js';
-import { createEventSectionDestination } from './view/event-destination.js';
-import { createTripEventsItemTemplate } from './view/event-item.js';
-import { generateTripEvent } from './view/util.js';
-const TASK_COUNT = 15;
+import { generateArrayMockPoints } from './mock/mock-utils.js';
+import { render, RenderPosition } from './utils/render.js';
+import { generateTripInfoMain, sortTripEvents } from './utils/trip.js';
 
+import TripInfoView from './view/trip-info.js';
+import SiteMenuView from './view/site-menu.js';
+import FiltersView from './view/filter.js';
+import NoEventView from './view/no-event.js';
+import SortView from './view/sort.js';
+import EventsListView from './view/events-list';
+import EventView from './view/event.js';
+import EventEditView from './view/event-edit.js';
 
-const tripEvents = new Array(TASK_COUNT).fill().map(()=>generateTripEvent());
+const tripEvents = generateArrayMockPoints();
+const tripEventsSortByDate = tripEvents.slice().sort(sortTripEvents);
 
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
+// console.log(tripEventsSortByDate);
 
-let tripСities;
-tripEvents.forEach((element) => {
-  //выводим название городов в trip-main
-  // добавить проверку на кол-во городов
-  !tripСities ? tripСities=element.destination.title : tripСities=`${tripСities} — ${element.destination.title}`;
-});
-
-const tripEventsSort = tripEvents.slice().sort((prev, next) => prev.date_from - next.date_from);
-// console.log(tripEventsSort);
-//выводим даты путешествия (начатьная и конечная)
-const tripDates=`${tripEventsSort[0].dateFrom.format('MMM D')} — ${tripEventsSort[tripEventsSort.length-1].dateTo.format('MMM D')}`;
-
-const siteTripMainElement = document.querySelector('.trip-main');
-render(siteTripMainElement, createMainTripTemplate(tripСities,tripDates), 'afterbegin');
+if (tripEventsSortByDate.length > 0) {
+  const infoMain = generateTripInfoMain(tripEventsSortByDate);
+  const mainElement = document.querySelector('.trip-main');
+  render(mainElement, new TripInfoView(infoMain).getElement(), RenderPosition.AFTERBEGIN);
+}
 
 const siteMenuElement = document.querySelector('.trip-controls__navigation');
-render(siteMenuElement, createSiteMenuTemplate(), 'beforeend');
+render(siteMenuElement, new SiteMenuView().getElement(), RenderPosition.BEFOREEND);
 
-const siteFiltersElement = document.querySelector('.trip-controls__filters');
-render(siteFiltersElement, createFilterMenuTemplate(), 'beforeend');
 
-const siteMainElement = document.querySelector('main').querySelector('.trip-events');
-render(siteMainElement,createSiteSortTemplate(), 'beforeend');
+const filtersElement = document.querySelector('.trip-controls__filters');
+render(filtersElement, new FiltersView().getElement(), 'beforeend');
 
-render(siteMainElement, createEditEventTemplate(), 'beforeend');
+const tripEventsElement = document.querySelector('main').querySelector('.trip-events');
 
-const siteEventEdit = document.querySelector('.event--edit');
-render(siteEventEdit, createEventHeader(tripEventsSort[0]), 'afterbegin');
+const renderEvent = (eventListElement, tripEvent) => {
+  const eventComponent = new EventView(tripEvent);
+  const eventEditComponent = new EventEditView(tripEvent);
 
-const siteEventDetailsElement = document.querySelector('main').querySelector('.event__details');
-if (siteEventDetailsElement){
-  //выводиться в будущем будет что-то одно: либо Offers, либо Destination
-  render(siteEventDetailsElement, createEventSectionOffers(tripEventsSort[0]), 'beforeend');
-  render(siteEventDetailsElement, createEventSectionDestination(tripEventsSort[0].destination), 'beforeend');
+  const replaceEditToEvent = () => {
+    eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+  };
+
+  const replaceEventToEdit = () => {
+    eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+  };
+
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replaceEditToEvent();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
+  eventComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceEventToEdit();
+    document.addEventListener('keydown', onEscKeyDown);
+  });
+
+  eventEditComponent.getElement().querySelector('.event__rollup-btn').addEventListener('click', () => {
+    replaceEditToEvent();
+    document.addEventListener('keydown', onEscKeyDown);
+  });
+
+  eventEditComponent.getElement().querySelector('form').addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    replaceEditToEvent();
+    document.removeEventListener('keydown', onEscKeyDown);
+  });
+
+  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
+if (tripEventsSortByDate.length > 0) {
+  render(tripEventsElement, new SortView().getElement(), 'beforeend');
+
+  const eventListComponent = new EventsListView();
+  render(tripEventsElement, eventListComponent.getElement(), RenderPosition.BEFOREEND);
+
+  for (let i = 0; i < tripEventsSortByDate.length; i++) {
+    renderEvent(eventListComponent.getElement(), tripEventsSortByDate[i]);
+  }
+} else {
+  render(tripEventsElement, new NoEventView().getElement(), 'beforeend');
 }
-
-const siteTripEventsList = document.querySelector('.trip-events__list');
-for (let i = 1; i < TASK_COUNT; i++) {
-  render(siteTripEventsList, createTripEventsItemTemplate(tripEventsSort[i]), 'beforeend');
-}
-
