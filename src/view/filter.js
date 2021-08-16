@@ -1,5 +1,5 @@
 import { FILTERS } from '../data.js';
-import { createElement } from '../utils/render.js';
+import AbstractView from '../view/abstract';
 
 const tripFilters = () => Object.keys(FILTERS).map((filter) =>
   `<div class="trip-filters__filter">
@@ -14,24 +14,8 @@ export const showFiltersTemplate = () =>
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>`;
 
-export default class Filters {
-  constructor() {
-    this._element = null;
-  }
-
+export default class Filters extends AbstractView {
   getTemplate() {
     return showFiltersTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

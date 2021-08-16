@@ -1,5 +1,5 @@
 ///написать ф-цию подсчета времени в пути
-import { createElement } from '../utils/render.js';
+import AbstractView from '../view/abstract';
 import dayjs from 'dayjs';
 
 const creatEventOfferTemplate = (offers) =>
@@ -50,27 +50,24 @@ export const showEventTemplate = ({dateFrom, dateTo, destination,type, basePrice
   </li>
   `;
 };
-
-
-export default class Event {
+export default class Event extends AbstractView {
   constructor(tripEvent) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getTemplate() {
     return showEventTemplate(this._tripEvent);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setEditClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._editClickHandler);
   }
 }
