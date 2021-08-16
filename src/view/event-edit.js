@@ -1,5 +1,5 @@
+import AbstractView from '../view/abstract.js';
 import { filterOffersByType } from '../utils/trip.js';
-import { createElement } from '../utils/render.js';
 import { POINT_TYPES } from '../data.js';
 import { СITIES } from '../mock/mock-data.js';
 //форматировать дату
@@ -123,25 +123,36 @@ const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, 
     </form>
   </li>`;
 
-export default class EventEdit {
-  constructor(tripEvent) {
+//при отсутствии данных выводить пустые поля
+export default class EventEdit extends AbstractView {
+  constructor (tripEvent) {
+    super();
     this._tripEvent = tripEvent;
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._ClickHandler = this._ClickHandler.bind(this);
   }
 
   getTemplate() {
     return showEventEditTemplate(this._tripEvent);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  _ClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.Click();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
+  }
+
+  setClickHandler(callback) {
+    this._callback.Click = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._ClickHandler);
   }
 }
