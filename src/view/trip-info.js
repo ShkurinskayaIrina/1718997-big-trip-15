@@ -1,7 +1,9 @@
 import AbstractView from '../view/abstract.js';
+import { generateTripInfoMain } from '../utils.js/trip.js';
 
-export const showTripInfoTemplate = ({tripInfoTitle, tripInfoDates, tripInfoCost}) =>
-  `<section class="trip-main__trip-info  trip-info">
+export const showTripInfoTemplate = (tripEvents) => {
+  const {tripInfoTitle, tripInfoDates, tripInfoCost} = generateTripInfoMain(tripEvents);
+  return `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
       <h1 class="trip-info__title">${tripInfoTitle}</h1>
       <p class="trip-info__dates">${tripInfoDates}</p>
@@ -9,15 +11,16 @@ export const showTripInfoTemplate = ({tripInfoTitle, tripInfoDates, tripInfoCost
     <p class="trip-info__cost">
     Total: &euro;&nbsp;<span class="trip-info__cost-value">${tripInfoCost}</span>
   </section>`;
+};
+
 export default class TripInfo extends AbstractView {
-  constructor (info) {
+  constructor (tripEvents) {
     super();
-    this._info = info;
-    // this._element = null;
+    this._tripEvents = tripEvents;
   }
 
   getTemplate() {
-    return showTripInfoTemplate(this._info);
+    return showTripInfoTemplate(this._tripEvents);
   }
 
 }

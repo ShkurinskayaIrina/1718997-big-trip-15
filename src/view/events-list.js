@@ -2,7 +2,6 @@ import AbstractView from '../view/abstract.js';
 
 export const showEventsListTemplate = () =>
   `<ul class="trip-events__list">
-    </li>
   </ul>`;
 
 export default class EventsList extends AbstractView {

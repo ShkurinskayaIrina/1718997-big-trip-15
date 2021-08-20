@@ -1,5 +1,6 @@
-import { OFFERS } from '../mock/mock-data.js';
-
+import { OFFERS } from '../data.js';
+// может перенести во вью
+// что-то сделать с моками, чтобы не было зависимости от них
 export const generateTripInfoMain = (tripEventsArray) => {
   const cityFirst = tripEventsArray[0].destination.city;
   let cityFinal = '';

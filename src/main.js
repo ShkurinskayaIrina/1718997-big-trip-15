@@ -1,6 +1,6 @@
-import { generateArrayMockPoints } from './mock/mock-utils.js';
-import { render, RenderPosition, replace  } from './utils/render.js';
-import { generateTripInfoMain, sortTripEvents } from './utils/trip.js';
+import { generateMockPoints } from './mock/mock-points.js';
+import { render, RenderPosition, replace  } from './utils.js/render.js';
+import { sortTripEvents } from './utils.js/trip.js';
 
 import TripInfoView from './view/trip-info.js';
 import SiteMenuView from './view/site-menu.js';
@@ -11,15 +11,15 @@ import EventsListView from './view/events-list';
 import EventView from './view/event.js';
 import EventEditView from './view/event-edit.js';
 
-const tripEvents = generateArrayMockPoints();
+const POINTS_COUNT = 15;
+const tripEvents = generateMockPoints(POINTS_COUNT);
 const tripEventsSortByDate = tripEvents.slice().sort(sortTripEvents);
 
-//console.log(tripEventsSortByDate);
+// console.log(tripEventsSortByDate);
 
 if (tripEventsSortByDate.length > 0) {
-  const infoMain = generateTripInfoMain(tripEventsSortByDate);
   const mainElement = document.querySelector('.trip-main');
-  render(mainElement, new TripInfoView(infoMain), RenderPosition.AFTERBEGIN);
+  render(mainElement, new TripInfoView(tripEventsSortByDate), RenderPosition.AFTERBEGIN);
 }
 
 const siteMenuElement = document.querySelector('.trip-controls__navigation');
@@ -31,9 +31,9 @@ render(filtersElement, new FiltersView(), 'beforeend');
 
 const tripEventsElement = document.querySelector('main').querySelector('.trip-events');
 
-const renderEvent = (eventListElement, tripEvent) => {
+const renderEvent = (eventListElement, index, tripEvent) => {
   const eventComponent = new EventView(tripEvent);
-  const eventEditComponent = new EventEditView(tripEvent);
+  const eventEditComponent = new EventEditView(index, tripEvent);
 
   const replaceEditToEvent = () => {
     replace(eventComponent, eventEditComponent);
@@ -51,12 +51,12 @@ const renderEvent = (eventListElement, tripEvent) => {
     }
   };
 
-  eventComponent.setEditClickHandler(() => {
+  eventComponent.setBtnEditClickHandler(() => {
     replaceEventToEdit();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  eventEditComponent.setClickHandler(() => {
+  eventEditComponent.setBtnClickHandler(() => {
     replaceEditToEvent();
     document.addEventListener('keydown', onEscKeyDown);
   });
@@ -76,7 +76,7 @@ if (tripEventsSortByDate.length > 0) {
   render(tripEventsElement, eventListComponent, RenderPosition.BEFOREEND);
 
   for (let i = 0; i < tripEventsSortByDate.length; i++) {
-    renderEvent(eventListComponent, tripEventsSortByDate[i]);
+    renderEvent(eventListComponent, i+1, tripEventsSortByDate[i]);
   }
 } else {
   render(tripEventsElement, new NoEventView(), 'beforeend');
