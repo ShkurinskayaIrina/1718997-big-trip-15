@@ -1,5 +1,5 @@
 import { TextDependFilter } from '../data.js';
-import AbstractView from '../view/abstract';
+import AbstractView from '../view/abstract.js';
 
 const tripFilters = () => Object.keys(TextDependFilter).map((filter) =>
   `<div class="trip-filters__filter">

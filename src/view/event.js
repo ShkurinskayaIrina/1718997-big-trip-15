@@ -1,5 +1,5 @@
 ///написать ф-цию подсчета времени в пути
-import AbstractView from '../view/abstract';
+import AbstractView from '../view/abstract.js';
 import dayjs from 'dayjs';
 
 const creatEventOfferTemplate = (offers) =>
@@ -12,7 +12,7 @@ const creatEventOfferTemplate = (offers) =>
 
 export const showEventTemplate = ({dateFrom, dateTo, destination,type, basePrice, isFavorite, offers}) =>{
   let classFavorite = '';
-  if (isFavorite){
+  if (isFavorite) {
     classFavorite='event__favorite-btn--active';
   }
   return `<li class="trip-events__item">
@@ -54,20 +54,31 @@ export default class Event extends AbstractView {
   constructor(tripEvent) {
     super();
     this._tripEvent = tripEvent;
-    this._btnEditClickHandler = this._btnEditClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+    this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getTemplate() {
     return showEventTemplate(this._tripEvent);
   }
 
-  _btnEditClickHandler(evt) {
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
+  _editClickHandler(evt) {
     evt.preventDefault();
     this._callback.editClick();
   }
 
-  setBtnEditClickHandler(callback) {
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector('.event__favorite-btn').addEventListener('click', this._favoriteClickHandler);
+  }
+
+  setEditClickHandler(callback) {
     this._callback.editClick = callback;
-    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._btnEditClickHandler);
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._editClickHandler);
   }
 }

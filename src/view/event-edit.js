@@ -1,5 +1,5 @@
 import AbstractView from '../view/abstract.js';
-import { filterOffersByType } from '../utils.js/trip.js';
+import { filterOffersByType } from '../utils/trip.js';
 import { POINT_TYPES } from '../data.js';
 import { СITIES } from '../data.js';
 //форматировать дату
@@ -125,7 +125,7 @@ export default class EventEdit extends AbstractView {
     this._index = index;
     this._tripEvent = tripEvent;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
-    this._btnClickHandler = this._btnClickHandler.bind(this);
+    this._rollUpClickHandler = this._rollUpClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -134,10 +134,10 @@ export default class EventEdit extends AbstractView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._tripEvent);
   }
 
-  _btnClickHandler(evt) {
+  _rollUpClickHandler(evt) {
     evt.preventDefault();
     this._callback.btnClick();
   }
@@ -147,8 +147,8 @@ export default class EventEdit extends AbstractView {
     this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
   }
 
-  setBtnClickHandler(callback) {
+  setRollUpClickHandler(callback) {
     this._callback.btnClick = callback;
-    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._btnClickHandler);
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpClickHandler);
   }
 }

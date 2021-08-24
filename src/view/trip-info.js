@@ -1,5 +1,5 @@
 import AbstractView from '../view/abstract.js';
-import { generateTripInfoMain } from '../utils.js/trip.js';
+import { generateTripInfoMain } from '../utils/trip.js';
 
 export const showTripInfoTemplate = (tripEvents) => {
   const {tripInfoTitle, tripInfoDates, tripInfoCost} = generateTripInfoMain(tripEvents);
