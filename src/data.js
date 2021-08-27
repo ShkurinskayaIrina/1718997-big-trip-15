@@ -16,13 +16,13 @@ export const TextDependFilter = {
   PAST : 'There are no past events now',
 };
 
-export const TYPES_SORT = [
-  'Day',
-  'Event',
-  'Time',
-  'Price',
-  'Offers',
-];
+export const SortTypes = {
+  DAY : 'Day',
+  EVENT : 'Event',
+  TIME : 'Time',
+  PRICE : 'Price',
+  OFFERS : 'Offers',
+};
 
 export const СITIES = [
   'Amsterdam',

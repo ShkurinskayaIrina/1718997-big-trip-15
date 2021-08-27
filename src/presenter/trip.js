@@ -1,5 +1,9 @@
-import { render, RenderPosition } from '../utils/render.js';
+import { remove, render, RenderPosition } from '../utils/render.js';
+import { sortEvent, sortPrice, sortOffers, sortTime } from '../utils/trip.js';
 import { updateItem } from '../mock/mock-utils.js';
+import { SortTypes } from '../data.js';
+
+
 import SortView from '../view/sort.js';
 import NoEventView from '../view/no-event.js';
 import EventsListView from '../view/events-list.js';
@@ -9,42 +13,77 @@ import EventPresenter from './event.js';
 export default class Trip {
   constructor(tripContainer) {
     this._tripContainer = tripContainer;
-    this._sortComponent = new SortView();
+    this._currentSortType = SortTypes.DAY;
+    this._sortComponent = new SortView(this._currentSortType);
     this._noEventComponent = new NoEventView();
     this._eventListComponent = new EventsListView();
+
 
     this._eventPresenter = new Map();
     this._handleEventChange = this._handleEventChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(tripEvents) {
     this._tripEvents = tripEvents.slice();
+    this._sourcedTripEvents = tripEvents.slice();
     this._renderTrip();
-  }
-
-  _handleEventChange(updatedEvent) {
-    this._boardTasks = updateItem(this._tripEvents, updatedEvent);
-    this._eventPresenter.get(updatedEvent.id).init(updatedEvent);
   }
 
   _handleModeChange() {
     this._eventPresenter.forEach((presenter) => presenter.resetView());
   }
 
+  _handleEventChange(updatedEvent) {
+    this._tripEvents = updateItem(this._tripEvents, updatedEvent);
+    this._sourcedTripEvents = updateItem(this._sourcedTripEvents, updatedEvent);
+    this._eventPresenter.get(updatedEvent.id).init(updatedEvent);
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+    remove(this._sortComponent);
+    this._sortEvents(sortType);
+    this._renderSort();
+    this._clearEventList();
+    this._renderEventList();
+  }
+
+  _sortEvents(sortType) {
+    switch (sortType) {
+      case SortTypes.DAY.toLowerCase():
+        this._tripEvents = this._sourcedTripEvents.slice();
+        break;
+      case SortTypes.EVENT.toLowerCase():
+        this._tripEvents.sort(sortEvent);
+        break;
+      case SortTypes.TIME.toLowerCase():
+        this._tripEvents.sort(sortTime);
+        break;
+      case SortTypes.PRICE.toLowerCase():
+        this._tripEvents.sort(sortPrice);
+        break;
+      case SortTypes.OFFERS.toLowerCase():
+        this._tripEvents.sort(sortOffers);
+        break;
+    }
+
+    this._currentSortType = sortType;
+  }
+
   _renderSort() {
     // Метод для рендеринга сортировки
+    this._sortComponent = new SortView(this._currentSortType);
     render(this._tripContainer, this._sortComponent, 'beforeend');
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderEventList() {
     render(this._tripContainer, this._eventListComponent, RenderPosition.BEFOREEND);
     this._renderEvents();
-  }
-
-  _clearEventList() {
-    this._eventPresenter.forEach((presenter) => presenter.destroy());
-    this._eventPresenter.clear();
   }
 
   _renderNoEvents() {
@@ -70,5 +109,10 @@ export default class Trip {
 
     this._renderSort();
     this._renderEventList();
+  }
+
+  _clearEventList() {
+    this._eventPresenter.forEach((presenter) => presenter.destroy());
+    this._eventPresenter.clear();
   }
 }

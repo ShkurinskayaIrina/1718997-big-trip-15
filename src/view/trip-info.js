@@ -1,5 +1,34 @@
 import AbstractView from '../view/abstract.js';
-import { generateTripInfoMain } from '../utils/trip.js';
+
+const generateTripInfoMain = (tripEvents) => {
+  //некорректно работает
+  const cityFirst = tripEvents[0].destination.city;
+  let cityFinal = '';
+
+  const dateFirst = tripEvents[0].dateFrom;
+  let dateFinal = '';
+
+  let separator = '';
+
+  if (tripEvents.length > 1 ){
+    separator = '— ... —';
+    cityFinal = tripEvents[tripEvents.length-1].destination.city;
+    dateFinal = tripEvents[tripEvents.length-1].dateTo;
+    if ( tripEvents.length === 2 ) {
+      separator = '—';
+    }
+  }
+  const tripInfoTitle = `${cityFirst} ${separator} ${cityFinal}`;
+  //отформатировать дату
+  // const tripInfoDates = String(dateFirst)+' '+separator+' '+String(dateFinal);
+
+  const tripInfoDates = `${dateFirst} ${separator} ${dateFinal}`;
+
+  // к цене еще добавить цену офферов
+  const tripInfoCost = tripEvents.reduce((cost, event) => cost = cost + event.basePrice, 0);
+  return {tripInfoTitle, tripInfoDates, tripInfoCost};
+
+};
 
 export const showTripInfoTemplate = (tripEvents) => {
   const {tripInfoTitle, tripInfoDates, tripInfoCost} = generateTripInfoMain(tripEvents);

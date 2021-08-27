@@ -1,6 +1,5 @@
 import EventView from '../view/event.js';
 import EventEditView from '../view/event-edit.js';
-
 import { render, RenderPosition, replace,  remove } from '../utils/render.js';
 
 const Mode = {
@@ -44,12 +43,10 @@ export default class Event {
       return;
     }
 
-    // if (this._eventListContainer.getElement().contains(prevEventComponent.getElement())) {
     if (this._mode === Mode.DEFAULT) {
       replace(this._eventComponent, prevEventComponent);
     }
 
-    // if (this._eventListContainer.getElement().contains(prevEventEditComponent.getElement())) {
     if (this._mode === Mode.EDITING) {
       replace(this._eventEditComponent, prevEventEditComponent);
     }
@@ -60,7 +57,7 @@ export default class Event {
 
   destroy() {
     remove(this._eventComponent);
-    remove(this._eventEventComponent);
+    remove(this._eventEditComponent);
   }
 
   resetView() {

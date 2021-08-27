@@ -1,6 +1,6 @@
 import { generateMockPoints } from './mock/mock-points.js';
 import { render, RenderPosition } from './utils/render.js'; //, replace
-import { sortTripEvents } from './utils/trip.js';
+import { sortDateUp, sortDateDown } from './utils/trip.js';
 
 import TripInfoView from './view/trip-info.js';
 import SiteMenuView from './view/site-menu.js';
@@ -13,15 +13,14 @@ import FiltersView from './view/filter.js';
 
 import TripPresenter from './presenter/trip.js';
 
-const POINTS_COUNT = 15;
+const POINTS_COUNT = 5;
 const tripEvents = generateMockPoints(POINTS_COUNT);
-const tripEventsSortByDate = tripEvents.slice().sort(sortTripEvents);
+const tripEventsSortDateUp = tripEvents.slice().sort(sortDateUp);
+const tripEventsSortDateDown = tripEvents.slice().sort(sortDateDown);
 
-// console.log(tripEventsSortByDate);
-
-if (tripEventsSortByDate.length) {
+if (tripEventsSortDateUp.length) {
   const mainElement = document.querySelector('.trip-main');
-  render(mainElement, new TripInfoView(tripEventsSortByDate), RenderPosition.AFTERBEGIN);
+  render(mainElement, new TripInfoView(tripEventsSortDateUp), RenderPosition.AFTERBEGIN);
 }
 
 const siteMenuElement = document.querySelector('.trip-controls__navigation');
@@ -34,7 +33,7 @@ render(filtersElement, new FiltersView(), 'beforeend');
 const tripEventsElement = document.querySelector('main').querySelector('.trip-events');
 const tripPresenter = new TripPresenter(tripEventsElement);
 
-tripPresenter.init(tripEventsSortByDate);
+tripPresenter.init(tripEventsSortDateDown);
 
 // const renderEvent = (eventListElement, index, tripEvent) => {
 //   const eventComponent = new EventView(tripEvent);

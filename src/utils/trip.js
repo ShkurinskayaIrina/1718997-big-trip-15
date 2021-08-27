@@ -1,36 +1,66 @@
 import { OFFERS } from '../data.js';
-// может перенести во вью
-// что-то сделать с моками, чтобы не было зависимости от них
-export const generateTripInfoMain = (tripEventsArray) => {
-  const cityFirst = tripEventsArray[0].destination.city;
-  let cityFinal = '';
-
-  const dateFirst = tripEventsArray[0].dateFrom;
-  let dateFinal = '';
-
-  let separator = '';
-
-  if (tripEventsArray.length > 1 ){
-    separator = '— ... —';
-    cityFinal = tripEventsArray[tripEventsArray.length-1].destination.city;
-    dateFinal = tripEventsArray[tripEventsArray.length-1].dateTo;
-    if ( tripEventsArray.length === 2 ) {
-      separator = '—';
-    }
-  }
-  const tripInfoTitle = `${cityFirst} ${separator} ${cityFinal}`;
-  //отформатировать дату
-  const tripInfoDates = `${dateFirst} ${separator} ${dateFinal}`;
-  // к цене еще добавить цену офферов
-  const tripInfoCost = tripEventsArray.reduce((cost, event) => cost = cost + event.basePrice, 0);
-  return {tripInfoTitle, tripInfoDates, tripInfoCost};
-
-};
-
-export const sortTripEvents = (prev, next) => prev.dateFrom - next.dateFrom;
+import dayjs from 'dayjs';
 
 export const filterOffersByType = (type) => OFFERS.filter((offer) => offer.type === type);
+
+export const sortDateDown = (prev, next) => next.dateFrom - prev.dateFrom;
+export const sortDateUp = (prev, next) => prev.dateFrom - next.dateFrom;
+export const sortPrice = (prev, next) => next.basePrice - prev.basePrice;
+export const sortOffers = (prev, next) => next.offers.length - prev.offers.length;
+export const sortTime = (prev, next) => dayjs(next.dateTo).diff(next.dateFrom,'day') - dayjs(prev.dateTo).diff(prev.dateFrom,'day');
+
+export const sortEvent = (prev, next) => {
+  const eventA = `${prev.type} ${prev.destination.city}`;
+  const eventB = `${next.type} ${next.destination.city}`;
+  if (eventA > eventB) {
+    return 1;
+  }
+  if (eventA < eventB) {
+    return -1;
+  }
+
+  return 0;
+};
+
 
 // export const humanizeTaskDueDate = (dueDate) => dayjs(dueDate).format('D MMMM');
 
 // ${humanizeTaskDueDate(dueDate)
+
+// export const sortEvent = (eventA, eventB) => {
+//   if (eventA.destination.city > eventB.destination.city) {
+//     return 1;
+//   }
+//   if (eventA.destination.city < eventB.destination.city) {
+//     return -1;
+//   }
+
+//   return 0;
+// };
+
+// const getWeightForNullDate = (dateA, dateB) => {
+//   if (dateA === null && dateB === null) {
+//     return 0;
+//   }
+
+//   if (dateA === null) {
+//     return 1;
+//   }
+
+//   if (dateB === null) {
+//     return -1;
+//   }
+
+//   return null;
+// };
+
+
+// export const sortTaskDown = (taskA, taskB) => {
+//   const weight = getWeightForNullDate(taskA.dueDate, taskB.dueDate);
+
+//   if (weight !== null) {
+//     return weight;
+//   }
+
+//   return dayjs(taskB.dueDate).diff(dayjs(taskA.dueDate));
+// };
