@@ -6,21 +6,21 @@ export const filterOffersByType = (type) => OFFERS.filter((offer) => offer.type 
 export const sortDateDown = (prev, next) => next.dateFrom - prev.dateFrom;
 export const sortDateUp = (prev, next) => prev.dateFrom - next.dateFrom;
 export const sortPrice = (prev, next) => next.basePrice - prev.basePrice;
-export const sortOffers = (prev, next) => next.offers.length - prev.offers.length;
+// export const sortOffers = (prev, next) => next.offers.length - prev.offers.length;
 export const sortTime = (prev, next) => dayjs(next.dateTo).diff(next.dateFrom,'day') - dayjs(prev.dateTo).diff(prev.dateFrom,'day');
 
-export const sortEvent = (prev, next) => {
-  const eventA = `${prev.type} ${prev.destination.city}`;
-  const eventB = `${next.type} ${next.destination.city}`;
-  if (eventA > eventB) {
-    return 1;
-  }
-  if (eventA < eventB) {
-    return -1;
-  }
+// export const sortEvent = (prev, next) => {
+//   const eventA = `${prev.type} ${prev.destination.city}`;
+//   const eventB = `${next.type} ${next.destination.city}`;
+//   if (eventA > eventB) {
+//     return 1;
+//   }
+//   if (eventA < eventB) {
+//     return -1;
+//   }
 
-  return 0;
-};
+//   return 0;
+// };
 
 
 // export const humanizeTaskDueDate = (dueDate) => dayjs(dueDate).format('D MMMM');

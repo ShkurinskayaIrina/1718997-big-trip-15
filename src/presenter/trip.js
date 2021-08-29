@@ -1,5 +1,5 @@
 import { remove, render, RenderPosition } from '../utils/render.js';
-import { sortEvent, sortPrice, sortOffers, sortTime } from '../utils/trip.js';
+import { sortPrice,  sortTime } from '../utils/trip.js'; //sortEvent, sortOffers
 import { updateItem } from '../mock/mock-utils.js';
 import { SortTypes } from '../data.js';
 
@@ -17,7 +17,6 @@ export default class Trip {
     this._sortComponent = new SortView(this._currentSortType);
     this._noEventComponent = new NoEventView();
     this._eventListComponent = new EventsListView();
-
 
     this._eventPresenter = new Map();
     this._handleEventChange = this._handleEventChange.bind(this);
@@ -56,22 +55,25 @@ export default class Trip {
     switch (sortType) {
       case SortTypes.DAY.toLowerCase():
         this._tripEvents = this._sourcedTripEvents.slice();
+        this._currentSortType = sortType;
         break;
-      case SortTypes.EVENT.toLowerCase():
-        this._tripEvents.sort(sortEvent);
-        break;
+      // case SortTypes.EVENT.toLowerCase():
+      //   this._tripEvents.sort(sortEvent);
+      //   break;
       case SortTypes.TIME.toLowerCase():
         this._tripEvents.sort(sortTime);
+        this._currentSortType = sortType;
         break;
       case SortTypes.PRICE.toLowerCase():
         this._tripEvents.sort(sortPrice);
+        this._currentSortType = sortType;
         break;
-      case SortTypes.OFFERS.toLowerCase():
-        this._tripEvents.sort(sortOffers);
-        break;
+      // case SortTypes.OFFERS.toLowerCase():
+      //   this._tripEvents.sort(sortOffers);
+      //   break;
     }
 
-    this._currentSortType = sortType;
+    // this._currentSortType = sortType;
   }
 
   _renderSort() {

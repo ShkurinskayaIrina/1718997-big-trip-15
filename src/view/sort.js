@@ -1,12 +1,31 @@
 import { SortTypes } from '../data.js';
 import AbstractView from '../view/abstract.js';
 
+// const tripSort = (sortType) => Object.keys(SortTypes).map((type) =>
+//   `<div class="trip-sort__item  trip-sort__item--${type.toLowerCase()}">
+//     <input id="sort-${type.toLowerCase()}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type.toLowerCase()}" ${type.toLowerCase()===sortType.toLowerCase() ? 'checked' : ''}>
+//     <label class="trip-sort__btn" data-sort-type="${type.toLowerCase()}" for="sort-${type.toLowerCase()}">${type}</label>
+//   </div>`).join('');
+// _sortEvents(sortType) {
+//   switch (sortType) {
+//     case SortTypes.DAY.toLowerCase():
+//       this._tripEvents = this._sourcedTripEvents.slice();
+//       break;
+
+const getProperty = (sortType, type) => {
+  if (type===SortTypes.EVENT.toLowerCase() || type===SortTypes.OFFERS.toLowerCase()){
+    return 'disabled';
+  } else if (type===sortType.toLowerCase()) {
+    return 'checked';
+  }
+};
+
+
 const tripSort = (sortType) => Object.keys(SortTypes).map((type) =>
   `<div class="trip-sort__item  trip-sort__item--${type.toLowerCase()}">
-    <input id="sort-${type.toLowerCase()}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type.toLowerCase()}" ${type.toLowerCase()===sortType.toLowerCase() ? 'checked' : ''}>
+    <input id="sort-${type.toLowerCase()}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type.toLowerCase()}" ${getProperty(sortType.toLowerCase(),type.toLowerCase())}>
     <label class="trip-sort__btn" data-sort-type="${type.toLowerCase()}" for="sort-${type.toLowerCase()}">${type}</label>
   </div>`).join('');
-
 
 export const showSortTemplate = (sortType) =>
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
