@@ -1,19 +1,20 @@
 import AbstractView from '../view/abstract.js';
 import { filterOffersByType } from '../utils/trip.js';
 import { POINT_TYPES } from '../data.js';
-import { СITIES } from '../mock/mock-data.js';
+import { СITIES } from '../data.js';
 //форматировать дату
+// const date = dueDate !== null
+// ? dayjs(dueDate).format('D MMMM')
+// : '';
 
-const isChecked = (findOffer, arrayOffers) => {
-  if (arrayOffers.find((offer) => offer.title===findOffer.title)) {
-    return 'checked';
-  }
-};
+const isChecked = (findOffer, arrayOffers) => arrayOffers.some((offer) => offer.title===findOffer.title);
 
-const showEventTypeItemTemplate = (typeItem) => POINT_TYPES.map((type) =>
+const getUniqueID = ({title}) => title.replace(/\s/g, '-').toLowerCase();
+
+const showEventTypeItemTemplate = (index, typeItem) => POINT_TYPES.map((type) =>
   `<div class="event__type-item">
-    <input id="event-type-${type.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}" ${typeItem === type.toLowerCase() ? 'checked' : ''}>
-    <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type.toLowerCase()}-1">${type}</label>
+    <input id="event-type-${type.toLowerCase()}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}" ${typeItem === type.toLowerCase() ? 'checked' : ''}>
+    <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type.toLowerCase()}-${index}">${type}</label>
   </div>`,
 ).join('');
 
@@ -21,24 +22,18 @@ const showDestinationListTemplate = () => СITIES.map((city) =>
   `<option value="${city}"></option>`,
 ).join('');
 
-const findLastWord = ({title}) => {
-  //беру последнее слово в наименовании оффера и записываю его в id
-  const arrayTitle = title.split(' ');
-  return arrayTitle[arrayTitle.length-1];
-};
-
-const showEventOfferSelectorTemplate = (availableOffers, checkedOffers) =>
+const showEventOfferSelectorTemplate = (index, availableOffers, checkedOffers) =>
   availableOffers.map((availableOffer) =>
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${findLastWord(availableOffer)}-1" type="checkbox" name="event-offer-${findLastWord(availableOffer)}" ${isChecked(availableOffer,checkedOffers)}>
-      <label class="event__offer-label" for="event-offer-${findLastWord(availableOffer)}-1">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${getUniqueID(availableOffer)}-${index}" type="checkbox" name="event-offer-${getUniqueID(availableOffer)}" ${isChecked(availableOffer,checkedOffers) ? 'checked' : ''}>
+      <label class="event__offer-label" for="event-offer-${getUniqueID(availableOffer)}-${index}">
         <span class="event__offer-title">${availableOffer.title}</span>
              &plus;&euro;&nbsp;
         <span class="event__offer-price">${availableOffer.price}</span>
       </label>
     </div>`).join('');
 
-const showEventOffersTemplate = (type, offers) => {
+const showEventOffersTemplate = (index, type, offers) => {
   const availableOffersByType = filterOffersByType(type);
   const availableOffers = availableOffersByType[0].offers;
 
@@ -47,14 +42,14 @@ const showEventOffersTemplate = (type, offers) => {
       <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
-          ${showEventOfferSelectorTemplate(availableOffers, offers)}
+          ${showEventOfferSelectorTemplate(index, availableOffers, offers)}
         </div>
       </section>`;
   }
   return '';
 };
 
-const createEventPhotosTape = (photos) =>
+const showEventPhotosTape = (photos) =>
   photos.map(({src}) =>`<img class="event__photo" src="${src}" alt="Event photo">`).join('');
 
 const showEventSectionDestinationTemplate = (description, photos) =>
@@ -64,51 +59,51 @@ const showEventSectionDestinationTemplate = (description, photos) =>
 
     <div class="event__photos-container">
       <div class="event__photos-tape">
-        ${createEventPhotosTape(photos)}
+        ${showEventPhotosTape(photos)}
       </div>
     </div>
   </section>`;
 
-const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, offers}) =>
+const showEventEditTemplate = (index, {type, dateFrom, dateTo, destination, basePrice, offers}) =>
   `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-1">
+          <label class="event__type  event__type-btn" for="event-type-toggle-${index}">
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${index}" type="checkbox">
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
-              ${showEventTypeItemTemplate(type)}
+              ${showEventTypeItemTemplate(index, type)}
             </fieldset>
           </div>
         </div>
         <div class="event__field-group  event__field-group--destination">
-          <label class="event__label  event__type-output" for="event-destination-1">
+          <label class="event__label  event__type-output" for="event-destination-${index}">
              ${type}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.city}" list="destination-list-1">
-          <datalist id="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-${index}" type="text" name="event-destination" value="${destination.city}" list="destination-list-${index}">
+          <datalist id="destination-list-${index}">
             ${showDestinationListTemplate()}
           </datalist>
         </div>
         <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
+          <label class="visually-hidden" for="event-start-time-${index}">From</label>
+          <input class="event__input  event__input--time" id="event-start-time-${index}" type="text" name="event-start-time" value="${dateFrom}">
             &mdash;
-          <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
+          <label class="visually-hidden" for="event-end-time-${index}">To</label>
+          <input class="event__input  event__input--time" id="event-end-time-${index}" type="text" name="event-end-time" value="${dateTo}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
-          <label class="event__label" for="event-price-1">
+          <label class="event__label" for="event-price-${index}">
             <span class="visually-hidden">Price</span>
               &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-${index}" type="text" name="event-price" value="${basePrice}">
         </div>
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
@@ -117,7 +112,7 @@ const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, 
         </button>
       </header>
       <section class="event__details">
-        ${showEventOffersTemplate(type, offers)}
+        ${showEventOffersTemplate(index, type, offers)}
         ${showEventSectionDestinationTemplate(destination.description, destination.photos)}
       </section>
     </form>
@@ -125,25 +120,26 @@ const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, 
 
 //при отсутствии данных выводить пустые поля
 export default class EventEdit extends AbstractView {
-  constructor (tripEvent) {
+  constructor (index, tripEvent) {
     super();
+    this._index = index;
     this._tripEvent = tripEvent;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
-    this._ClickHandler = this._ClickHandler.bind(this);
+    this._rollUpClickHandler = this._rollUpClickHandler.bind(this);
   }
 
   getTemplate() {
-    return showEventEditTemplate(this._tripEvent);
+    return showEventEditTemplate(this._index, this._tripEvent);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._tripEvent);
   }
 
-  _ClickHandler(evt) {
+  _rollUpClickHandler(evt) {
     evt.preventDefault();
-    this._callback.Click();
+    this._callback.btnClick();
   }
 
   setFormSubmitHandler(callback) {
@@ -151,8 +147,8 @@ export default class EventEdit extends AbstractView {
     this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
   }
 
-  setClickHandler(callback) {
-    this._callback.Click = callback;
-    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._ClickHandler);
+  setRollUpClickHandler(callback) {
+    this._callback.btnClick = callback;
+    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpClickHandler);
   }
 }

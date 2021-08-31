@@ -1,7 +1,7 @@
-import { FILTERS } from '../data.js';
-import AbstractView from '../view/abstract';
+import { TextDependFilter } from '../data.js';
+import AbstractView from '../view/abstract.js';
 
-const tripFilters = () => Object.keys(FILTERS).map((filter) =>
+const tripFilters = () => Object.keys(TextDependFilter).map((filter) =>
   `<div class="trip-filters__filter">
     <input id="filter-${filter}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${filter}" ${filter === 'everything' ? 'checked' : ''}>
     <label class="trip-filters__filter-label" for="filter-${filter}">${filter}</label>
