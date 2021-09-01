@@ -1,3 +1,4 @@
+// import SmartView from '../view/smart.js';
 import AbstractView from '../view/abstract.js';
 import { filterOffersByType } from '../utils/trip.js';
 import { POINT_TYPES } from '../data.js';
@@ -37,73 +38,72 @@ const showEventOffersTemplate = (index, type, offers) => {
   const availableOffersByType = filterOffersByType(type);
   const availableOffers = availableOffersByType[0].offers;
 
-  if  (availableOffers.length > 0) {
-    return `
+  // if  (availableOffers.length > 0) {
+  return `
       <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
           ${showEventOfferSelectorTemplate(index, availableOffers, offers)}
         </div>
       </section>`;
-  }
-  return '';
+  // }
+  // return '';
 };
 
-const showEventPhotosTape = (photos) =>
-  photos.map(({src}) =>`<img class="event__photo" src="${src}" alt="Event photo">`).join('');
+// добавить подпись на  фото
+const showEventPhotosTape = (photos) => photos.map(({src, description}) =>`<img class="event__photo" src="${src}" alt="${description}">`).join('');
 
-const showEventSectionDestinationTemplate = (description, photos) =>
+const showEventSectionDestinationTemplate = ({description, pictures}) =>
   `<section class="event__section  event__section--destination">
     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-    <p class="event__destination-description">${description}</p>
-
+     <p class="event__destination-description">${description}</p>
     <div class="event__photos-container">
       <div class="event__photos-tape">
-        ${showEventPhotosTape(photos)}
+        ${showEventPhotosTape(pictures)}
       </div>
     </div>
   </section>`;
 
-const showEventEditTemplate = (index, {type, dateFrom, dateTo, destination, basePrice, offers}) =>
+const showEventEditTemplate = ({id, type, dateFrom, dateTo, city,destination, basePrice, offers, isOffers, isDestination}) =>
   `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-${index}">
+          <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${index}" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
-              ${showEventTypeItemTemplate(index, type)}
+                ${showEventTypeItemTemplate(id, type)}
             </fieldset>
           </div>
         </div>
         <div class="event__field-group  event__field-group--destination">
-          <label class="event__label  event__type-output" for="event-destination-${index}">
+          <label class="event__label  event__type-output" for="event-destination-${id}">
              ${type}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${index}" type="text" name="event-destination" value="${destination.city}" list="destination-list-${index}">
-          <datalist id="destination-list-${index}">
+          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${city}" list="destination-list-${id}">
+          <datalist id="destination-list-${id}">
             ${showDestinationListTemplate()}
           </datalist>
         </div>
         <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-${index}">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-${index}" type="text" name="event-start-time" value="${dateFrom}">
+          <label class="visually-hidden" for="event-start-time-${id}">From</label>
+          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom}">
             &mdash;
-          <label class="visually-hidden" for="event-end-time-${index}">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-${index}" type="text" name="event-end-time" value="${dateTo}">
+          <label class="visually-hidden" for="event-end-time-${id}">To</label>
+          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dateTo}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
-          <label class="event__label" for="event-price-${index}">
+          <label class="event__label" for="event-price-${id}">
             <span class="visually-hidden">Price</span>
               &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-${index}" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${basePrice}">
         </div>
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
@@ -112,29 +112,33 @@ const showEventEditTemplate = (index, {type, dateFrom, dateTo, destination, base
         </button>
       </header>
       <section class="event__details">
-        ${showEventOffersTemplate(index, type, offers)}
-        ${showEventSectionDestinationTemplate(destination.description, destination.photos)}
+        ${isOffers ? showEventOffersTemplate(id, type, offers) : ''}
+        ${isDestination ? showEventSectionDestinationTemplate(destination[0]) : ''}
       </section>
     </form>
   </li>`;
 
 //при отсутствии данных выводить пустые поля
 export default class EventEdit extends AbstractView {
-  constructor (index, tripEvent) {
+// export default class EventEdit extends SmartView {
+  constructor (tripEvent) {
     super();
-    this._index = index;
-    this._tripEvent = tripEvent;
+    // this._tripEvent = tripEvent;
+    this._data  = EventEdit.parseEventToData(tripEvent);
+    // console.log( this._data);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._rollUpClickHandler = this._rollUpClickHandler.bind(this);
   }
 
   getTemplate() {
-    return showEventEditTemplate(this._index, this._tripEvent);
+    // return showEventEditTemplate(this._tripEvent);
+    return showEventEditTemplate(this._data);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._tripEvent);
+    // this._callback.formSubmit(this._tripEvent);
+    this._callback.formSubmit(EventEdit.parseDataToTask(this._data));
   }
 
   _rollUpClickHandler(evt) {
@@ -150,5 +154,43 @@ export default class EventEdit extends AbstractView {
   setRollUpClickHandler(callback) {
     this._callback.btnClick = callback;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpClickHandler);
+  }
+
+  static parseEventToData(event) {
+    return Object.assign(
+      {},
+      event,
+      {
+        isOffers: !!event.offers.length,
+        isDestination : !!event.destination.length,
+      // isDueDate: task.dueDate !== null,
+      // isRepeating: isTaskRepeating(task.repeating),
+      },
+    );
+  }
+
+  static parseDataToEvent(data) {
+    data = Object.assign({}, data);
+
+    // if (!data.isDueDate) {
+    //   data.dueDate = null;
+    // }
+
+    // if (!data.isRepeating) {
+    //   data.repeating = {
+    //     mo: false,
+    //     tu: false,
+    //     we: false,
+    //     th: false,
+    //     fr: false,
+    //     sa: false,
+    //     su: false,
+    //   };
+    // }
+
+    delete data.isOffers;
+    delete data.isDestination;
+
+    return data;
   }
 }

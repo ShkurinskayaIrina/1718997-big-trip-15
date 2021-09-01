@@ -10,7 +10,7 @@ const creatEventOfferTemplate = (offers) =>
       <span class="event__offer-price">${price}</span>
     </li>`).join('');
 
-export const showEventTemplate = ({dateFrom, dateTo, destination,type, basePrice, isFavorite, offers}) =>{
+export const showEventTemplate = ({dateFrom, dateTo, destination, type, basePrice, isFavorite, offers}) =>{
   let classFavorite = '';
   if (isFavorite) {
     classFavorite='event__favorite-btn--active';

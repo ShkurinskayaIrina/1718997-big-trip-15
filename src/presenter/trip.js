@@ -57,9 +57,6 @@ export default class Trip {
         this._tripEvents = this._sourcedTripEvents.slice();
         this._currentSortType = sortType;
         break;
-      // case SortTypes.EVENT.toLowerCase():
-      //   this._tripEvents.sort(sortEvent);
-      //   break;
       case SortTypes.TIME.toLowerCase():
         this._tripEvents.sort(sortTime);
         this._currentSortType = sortType;
@@ -68,12 +65,7 @@ export default class Trip {
         this._tripEvents.sort(sortPrice);
         this._currentSortType = sortType;
         break;
-      // case SortTypes.OFFERS.toLowerCase():
-      //   this._tripEvents.sort(sortOffers);
-      //   break;
     }
-
-    // this._currentSortType = sortType;
   }
 
   _renderSort() {
