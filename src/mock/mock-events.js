@@ -18,9 +18,9 @@ const getRandomDescriptions = () => {
 };
 
 const getRandomDate = () => {
-  const maxDaysGap = 7;
+  const maxDaysGap = 3000;
   const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
-  return dayjs().add(daysGap, 'day');
+  return dayjs().add(daysGap, 'minute');
 };
 
 const getRandonPhotos = () => {
@@ -40,7 +40,7 @@ const getRandonPhotos = () => {
 const getRandomOffers = (type) => {
   const availableOffers = filterOffersByType(type); //доступные предложения
   if (availableOffers[0].offers.length > 0) {
-    return new Array(getRandomInteger(1, availableOffers[0].offers.length))
+    return new Array(getRandomInteger(0, availableOffers[0].offers.length))
       .fill(null)
       .map(() => getRandomArrayElement(availableOffers[0].offers));
   }
@@ -52,25 +52,22 @@ const generateMockDescriptionOfDestinations = () => {
   const destinations = new Array();
   СITIES.forEach((city) => {
     const isDate = Boolean(getRandomInteger(0, 1));
-    if (isDate) {
-      const destination = new Object();
-      destination.description = getRandomDescriptions();
-      destination.city = city;
-      destination.pictures = getRandonPhotos();
-      destinations.push(destination);
-    }
+    const destination = new Object();
+    destination.city = city;
+    destination.description = isDate ? getRandomDescriptions() : '';
+    destination.pictures = isDate ? getRandonPhotos() : '';
+    destinations.push(destination);
   });
   return destinations;
 };
 
 let id = 1;
-const mockDescriptionOfDestinations = generateMockDescriptionOfDestinations();
+export const mockDescriptionOfDestinations = generateMockDescriptionOfDestinations();
 
 const generateMockEvent = () => {
   const type = getRandomArrayElement(POINT_TYPES).toLowerCase();
   const date1 = getRandomDate();
   const date2 = getRandomDate();
-
   return {
     id : id++,
     basePrice : getRandomInteger(5,100),

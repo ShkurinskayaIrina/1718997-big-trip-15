@@ -1,6 +1,6 @@
 ///написать ф-цию подсчета времени в пути
 import AbstractView from '../view/abstract.js';
-import dayjs from 'dayjs';
+import { formattingDateYMDHM, formattingDateYDM, formattingDateMD, formattingDateHM, formattingDateDiff } from '../utils/trip.js';
 
 const creatEventOfferTemplate = (offers) =>
   offers.map(({title, price}) =>
@@ -17,18 +17,18 @@ export const showEventTemplate = ({dateFrom, dateTo, destination, type, basePric
   }
   return `<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="${dayjs(dateFrom).format('YYYY-MM-DD')}">${dayjs(dateFrom).format('MMM D')}</time>
+      <time class="event__date" datetime="${formattingDateYDM(dateFrom)}">${formattingDateMD(dateFrom)}</time>
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
       <h3 class="event__title">${type} ${destination.city}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${dayjs(dateFrom).format('YYYY-MM-DDTHH:mm')}">${dayjs(dateFrom).format('HH:mm')}</time>
+          <time class="event__start-time" datetime="${formattingDateYMDHM(dateFrom)}">${formattingDateHM(dateFrom)}</time>
                     &mdash;
-          <time class="event__end-time" datetime="${dayjs(dateTo).format('YYYY-MM-DDTHH:mm')}">${dayjs(dateTo).format('HH:mm')}</time>
+          <time class="event__end-time" datetime="${formattingDateYMDHM(dateTo)}">${formattingDateHM(dateTo)}</time>
         </p>
-        <p class="event__duration">${dayjs(dateTo).diff(dateFrom,'day')}D</p>
+        <p class="event__duration">${formattingDateDiff(dateFrom, dateTo)}</p>
       </div>
       <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${basePrice}</span>

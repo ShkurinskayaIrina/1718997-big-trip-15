@@ -81,6 +81,7 @@ export default class Event {
   _escKeyDownHandler(evt) {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this._eventEditComponent.reset(this._tripEvent);
       this._replaceEditToEvent();
     }
   }
@@ -90,8 +91,8 @@ export default class Event {
   }
 
   _handleRollUpClick() {
+    this._eventEditComponent.reset(this._tripEvent);
     this._replaceEditToEvent();
-
   }
 
   _handleFavoriteClick() {
