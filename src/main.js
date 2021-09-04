@@ -13,7 +13,7 @@ import FiltersView from './view/filter.js';
 
 import TripPresenter from './presenter/trip.js';
 
-const POINTS_COUNT = 15;
+const POINTS_COUNT = 3;
 const tripEvents = generateMockEvents(POINTS_COUNT);
 // console.log(tripEvents);
 const tripEventsSortDateUp = tripEvents.slice().sort(sortDateUp);

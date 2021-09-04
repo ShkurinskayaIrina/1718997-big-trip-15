@@ -154,6 +154,23 @@ export default class EventEdit extends SmartView {
     this.setRollUpClickHandler(this._callback.btnClick);
   }
 
+  removeElement() {
+    super.removeElement();
+    this._resetDatepicker();
+  }
+
+  _resetDatepicker() {
+    if (this._datepickerStart) {
+      this._datepickerStart.destroy();
+      this._datepickerStart = null;
+    }
+
+    if (this._datepickerEnd) {
+      this._datepickerEnd.destroy();
+      this._datepickerEnd = null;
+    }
+  }
+
   _setDatepickerStart() {
     if (this._datepickerStart) {
       this._datepickerStart.destroy();
