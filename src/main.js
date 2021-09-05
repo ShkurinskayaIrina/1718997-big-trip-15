@@ -1,4 +1,4 @@
-import { generateMockPoints } from './mock/mock-points.js';
+import { generateMockEvents } from './mock/mock-events.js';
 import { render, RenderPosition } from './utils/render.js'; //, replace
 import { sortDateUp, sortDateDown } from './utils/trip.js';
 
@@ -13,8 +13,9 @@ import FiltersView from './view/filter.js';
 
 import TripPresenter from './presenter/trip.js';
 
-const POINTS_COUNT = 5;
-const tripEvents = generateMockPoints(POINTS_COUNT);
+const POINTS_COUNT = 15;
+const tripEvents = generateMockEvents(POINTS_COUNT);
+// console.log(tripEvents);
 const tripEventsSortDateUp = tripEvents.slice().sort(sortDateUp);
 const tripEventsSortDateDown = tripEvents.slice().sort(sortDateDown);
 
