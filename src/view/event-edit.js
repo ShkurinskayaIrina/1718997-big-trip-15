@@ -1,18 +1,31 @@
 import SmartView from '../view/smart.js';
 
 import { filterOffersByType } from '../utils/trip.js';
-import { POINT_TYPES } from '../data.js';
+import { EVENT_TYPES } from '../data.js';
 import { СITIES } from '../data.js';
 import { mockDescriptionOfDestinations } from '../mock/mock-events.js';
-import { formattingDateDMYHM } from '../utils/trip.js';
+import { formattingDateDMYHM, isInvalidDatePeriod } from '../utils/trip.js';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
-import dayjs from 'dayjs'; //убрать потом
+
+const BLANK_EVENT = {
+  basePrice : '',
+  destination : {
+    city: '',
+    description: null,
+    pictures: null,
+  },
+  type: EVENT_TYPES[0].toLowerCase(),
+  offers : [],
+  isFavorite : false,
+  isNew : true,
+};
+
 const isChecked = (findOffer, arrayOffers) => arrayOffers.some((offer) => offer.title===findOffer.title);
 
 const getUniqueID = ({title}) => title.replace(/\s/g, '-').toLowerCase();
 
-const showEventTypeItemTemplate = (typeItem) => POINT_TYPES.map((type) =>
+const showEventTypeItemTemplate = (typeItem) => EVENT_TYPES.map((type) =>
   `<div class="event__type-item">
     <input id="event-type-${type.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}" ${typeItem === type.toLowerCase() ? 'checked' : ''}>
     <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type.toLowerCase()}-1">${type}</label>
@@ -58,10 +71,13 @@ const showEventSectionDestinationTemplate = ({description, pictures}) =>
     </div>
   </section>`;
 
+const showRollupBtn = () =>
+  `<button class="event__rollup-btn" type="button">
+    <span class="visually-hidden">Open event</span>
+  </button>`;
 
-const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, offers, isOffers, isDestination}) => {
-  const isSubmitDisabled = dayjs(dateFrom).isAfter(dayjs(dateTo), 'minute');
-  return `<li class="trip-events__item">
+const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, offers, isOffers, isDestination, isNew}) =>
+  `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
@@ -101,32 +117,32 @@ const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, 
           </label>
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
         </div>
-        <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${isInvalidDatePeriod(dateTo, dateFrom) ? 'disabled' : ''}>Save</button>
+        <button class="event__reset-btn" type="reset">${isNew ? 'Cancel' : 'Delete'}</button>
+        ${isNew ? '' :showRollupBtn()}
       </header>
       <section class="event__details">
         ${isOffers ? showEventOffersTemplate(type, offers) : ''}
         ${isDestination ? showEventSectionDestinationTemplate(destination) : ''}
       </section>
     </form>
-  </li>`;};
+  </li>`;
 
 export default class EventEdit extends SmartView {
-  constructor (tripEvent) {
+  constructor (tripEvent = BLANK_EVENT) {
     super();
     this._data  = EventEdit.parseEventToData(tripEvent);
     this._datepickerStart = null;
     this._datepickerEnd = null;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._rollUpClickHandler = this._rollUpClickHandler.bind(this);
 
     this._eventTypeToggleHandler = this._eventTypeToggleHandler.bind(this);
     this._destinationToggleHandler = this._destinationToggleHandler.bind(this);
     this._offersToggleHandler = this._offersToggleHandler.bind(this);
+    this._priceToggleHandler = this._priceToggleHandler.bind(this);
     this._setInnerHandlers();
 
     this._startTimeChangeHandler = this._startTimeChangeHandler.bind(this);
@@ -151,7 +167,35 @@ export default class EventEdit extends SmartView {
     this._setDatepickerStart();
     this._setDatepickerEnd();
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
     this.setRollUpClickHandler(this._callback.btnClick);
+  }
+
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(EventEdit.parseDataToEvent(this._data));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector('.event__reset-btn').addEventListener('click', this._formDeleteClickHandler);
+  }
+
+  removeElement() {
+    super.removeElement();
+    this._resetDatepicker();
+  }
+
+  _resetDatepicker() {
+    if (this._datepickerStart) {
+      this._datepickerStart.destroy();
+      this._datepickerStart = null;
+    }
+
+    if (this._datepickerEnd) {
+      this._datepickerEnd.destroy();
+      this._datepickerEnd = null;
+    }
   }
 
   _setDatepickerStart() {
@@ -196,11 +240,13 @@ export default class EventEdit extends SmartView {
 
     this.getElement().querySelector('.event__field-group--destination')
       .addEventListener('change', this._destinationToggleHandler);
-
     if (this._data.isOffers) {
       this.getElement().querySelector('.event__available-offers')
         .addEventListener('click', this._offersToggleHandler);
     }
+
+    this.getElement().querySelector('.event__field-group--price')
+      .addEventListener('change', this._priceToggleHandler);
   }
 
   _startTimeChangeHandler([userDate]) {
@@ -233,6 +279,14 @@ export default class EventEdit extends SmartView {
     if (!evt.target.value) {
       return;
     }
+    if (СITIES.includes(evt.target.value)) {
+      evt.target.setCustomValidity('');
+    } else {
+      evt.target.setCustomValidity('Выберите город из списка!');
+      return;
+    }
+    evt.target.reportValidity();
+
     const descriptionOfDestinations = mockDescriptionOfDestinations.find((destination) => destination.city === evt.target.value);
     this.updateData({
       destination: descriptionOfDestinations,
@@ -242,39 +296,57 @@ export default class EventEdit extends SmartView {
 
   _offersToggleHandler(evt) {
     evt.preventDefault();
-    // const selectedOffer = new Object();
-    // if (evt.target.tagName === 'SPAN') {
-    //   if (evt.target.className === 'event__offer-title') {
-    //     selectedOffer.title = evt.target.textContent;
-    //     selectedOffer.price = Number(evt.target.parentNode.lastElementChild.textContent);
-    //     // selectedOffer.checked = !evt.target.parentNode.previousElementSibling.checked;
+    const selectedOffer = new Object();
+    if (evt.target.tagName === 'SPAN') {
+      if (evt.target.className === 'event__offer-title') {
+        selectedOffer.title = evt.target.textContent;
+        selectedOffer.price = Number(evt.target.parentNode.lastElementChild.textContent);
+        // selectedOffer.checked = !evt.target.parentNode.previousElementSibling.checked;
 
-    //   } else if ( evt.target.className === 'event__offer-price') {
-    //     selectedOffer.title = evt.target.parentNode.firstElementChild.textContent;
-    //     selectedOffer.price = Number(evt.target.textContent);
-    //     // selectedOffer.checked = !evt.target.parentNode.previousElementSibling.checked;
-    //   }
+      } else if ( evt.target.className === 'event__offer-price') {
+        selectedOffer.title = evt.target.parentNode.firstElementChild.textContent;
+        selectedOffer.price = Number(evt.target.textContent);
+        // selectedOffer.checked = !evt.target.parentNode.previousElementSibling.checked;
+      }
 
-    // } else if (evt.target.tagName === 'LABEL') {
-    //   selectedOffer.title = evt.target.childNodes[1].textContent;
-    //   selectedOffer.price = Number(evt.target.lastElementChild.textContent);
-    //   // selectedOffer.checked = !evt.target.previousElementSibling.checked;
-    // } else {
-    //   return;
-    // }
+    } else if (evt.target.tagName === 'LABEL') {
+      selectedOffer.title = evt.target.childNodes[1].textContent;
+      selectedOffer.price = Number(evt.target.lastElementChild.textContent);
+      // selectedOffer.checked = !evt.target.previousElementSibling.checked;
+    } else {
+      return;
+    }
+    const selectedOffers = this._data.offers.slice(0);
 
-    // const selectedOffers = this._data.offers;
+    const isCheckedOffer = this._data.offers.length ? this._data.offers.findIndex((offer) => (offer.title) === selectedOffer.title) : -1;
 
-    // const isCheckedOffer = this._data.offers.length ? this._data.offers.findIndex((offer) => (offer.title) === selectedOffer.title) : -1;
-    // if (isCheckedOffer < 0) {
-    //   selectedOffers.push(selectedOffer);
-    // } else {
-    //   selectedOffers.splice(isCheckedOffer, 1);
-    // }
+    if (isCheckedOffer < 0) {
+      selectedOffers.push(selectedOffer);
+    } else {
+      selectedOffers.splice(isCheckedOffer, 1);
+    }
+    this.updateData({
+      offers: selectedOffers,
+    });
+  }
 
-    // this.updateData({
-    //   offers: selectedOffers,
-    // });
+  _priceToggleHandler(evt) {
+    evt.preventDefault();
+    if (!evt.target.value) {
+      return;
+    }
+    const price = Number(evt.target.value);
+    if (Number.isInteger(price) && price>0) {
+      evt.target.setCustomValidity('');
+    } else {
+      evt.target.setCustomValidity('Введите целое положительное число!');
+      return;
+    }
+    evt.target.reportValidity();
+
+    this.updateData({
+      basePrice: evt.target.value,
+    });
   }
 
   _formSubmitHandler(evt) {
@@ -287,6 +359,11 @@ export default class EventEdit extends SmartView {
     this._callback.btnClick();
   }
 
+  // static setFormCloseHandler() {
+  //   const newEventButton = document.querySelector('.trip-main__event-add-btn');
+  //   newEventButton.disabled = false;
+  // }
+
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
@@ -294,29 +371,23 @@ export default class EventEdit extends SmartView {
 
   setRollUpClickHandler(callback) {
     this._callback.btnClick = callback;
-    this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpClickHandler);
-  }
-
-  static getOffersWithState (event) {
-    const allOffersByType = filterOffersByType(event.type)[0].offers;
-    const allOffersByTypeWithSign = {};
-    allOffersByType.forEach((offer) => {
-      allOffersByTypeWithSign[offer.title] = isChecked(offer, event.offers);
-    });
-    return allOffersByTypeWithSign;
+    if (!this._data.isNew) {
+      this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpClickHandler);
+    }
   }
 
   static parseEventToData(event) {
-    const allOffersWithSign = EventEdit.getOffersWithState(event);
-    // исправить : блок оферов отрисовыет при их отсутствии, т.к. !allOffersWithSign.length всегда true
-    // пока не отказываюсь от этого объекта
+    let allOffersByType;
+    if (event.type) {
+      allOffersByType = filterOffersByType(event.type)[0].offers[0];
+    }
+
     return Object.assign(
       {},
       event,
       {
-        isOffers: !allOffersWithSign.length,
+        isOffers: !!allOffersByType,
         isDestination: !!event.destination.description,
-        checkedOffers: allOffersWithSign,
       },
     );
   }
@@ -325,8 +396,8 @@ export default class EventEdit extends SmartView {
     data = Object.assign({}, data);
     delete data.isOffers;
     delete data.isDestination;
-    delete data.checkedOffers;
-
+    // EventEdit.setFormCloseHandler();
     return data;
   }
 }
+

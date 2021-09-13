@@ -2,17 +2,19 @@ import { SortTypes } from '../data.js';
 import AbstractView from '../view/abstract.js';
 
 const getProperty = (sortType, type) => {
-  if (type===SortTypes.EVENT.toLowerCase() || type===SortTypes.OFFERS.toLowerCase()){
+  if (type === SortTypes.EVENT || type === SortTypes.OFFERS){
     return 'disabled';
-  } else if (type===sortType.toLowerCase()) {
+  }
+
+  if (type === sortType) {
     return 'checked';
   }
 };
 
-const tripSort = (sortType) => Object.keys(SortTypes).map((type) =>
-  `<div class="trip-sort__item  trip-sort__item--${type.toLowerCase()}">
-    <input id="sort-${type.toLowerCase()}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type.toLowerCase()}" ${getProperty(sortType.toLowerCase(),type.toLowerCase())}>
-    <label class="trip-sort__btn" data-sort-type="${type.toLowerCase()}" for="sort-${type.toLowerCase()}">${type}</label>
+const tripSort = (sortType) => Object.values(SortTypes).map((type) =>
+  `<div class="trip-sort__item  trip-sort__item--${type}">
+    <input id="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type}" ${getProperty(sortType, type)}>
+    <label class="trip-sort__btn" data-sort-type="${type}" for="sort-${type}">${type}</label>
   </div>`).join('');
 
 export const showSortTemplate = (sortType) =>
@@ -20,14 +22,14 @@ export const showSortTemplate = (sortType) =>
     ${tripSort(sortType)}
   </form>`;
 export default class Sort extends AbstractView {
-  constructor(SortType) {
+  constructor(currentSortType) {
     super();
-    this._sortType = SortType;
+    this._currentSortType = currentSortType;
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
 
   getTemplate() {
-    return showSortTemplate(this._sortType);
+    return showSortTemplate(this._currentSortType);
   }
 
   _sortTypeChangeHandler(evt) {
@@ -36,7 +38,7 @@ export default class Sort extends AbstractView {
     }
     evt.preventDefault();
     this._callback.sortTypeChange(evt.target.dataset.sortType);
-    this._sortType = evt.target.dataset.sortType;
+    this._currentSortType = evt.target.dataset.sortType;
   }
 
   setSortTypeChangeHandler(callback) {

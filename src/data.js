@@ -1,4 +1,4 @@
-export const POINT_TYPES = [
+export const EVENT_TYPES = [
   'Taxi',
   'Bus',
   'Train',
@@ -10,18 +10,19 @@ export const POINT_TYPES = [
   'Restaurant',
 ];
 
-export const TextDependFilter = {
-  EVERYTHING : 'Click New Event to create your first point',
-  FUTURE : 'There are no future events now',
-  PAST : 'There are no past events now',
+export const FilterType = {
+  EVERYTHING: 'Everything',
+  FUTURE: 'Future',
+  PAST: 'Past',
 };
 
+
 export const SortTypes = {
-  DAY : 'Day',
-  EVENT : 'Event',
-  TIME : 'Time',
-  PRICE : 'Price',
-  OFFERS : 'Offers',
+  DAY : 'day',
+  EVENT : 'event',
+  TIME : 'time',
+  PRICE : 'price',
+  OFFERS : 'offers',
 };
 
 export const СITIES = [
@@ -167,3 +168,17 @@ export const OFFERS = [
     'offers': [],
   },
 ];
+
+export const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
+
+export const UpdateType = {
+  PATCH: 'PATCH', //обновить часть списка (например, когда поменялось описание)
+  MINOR: 'MINOR', //обновить список (например, когда изменились данные, касающиеся тек фильтрации)
+  MAJOR: 'MAJOR', //обновить весь список (например, при переключении фильтра)
+};
+
+
