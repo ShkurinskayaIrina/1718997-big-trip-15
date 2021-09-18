@@ -1,6 +1,6 @@
-import { EVENT_TYPES } from '../data.js';
+import { EVENT_TYPES } from '../const.js';
 import { DESCRIPTIONS } from './mock-data.js';
-import { СITIES } from '../data.js';
+import { СITIES } from '../const.js';
 import { getRandomArrayElement, getRandomInteger } from './mock-utils.js';
 import { filterOffersByType } from '../utils/trip.js';
 

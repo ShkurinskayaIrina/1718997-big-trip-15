@@ -1,6 +1,6 @@
 import { remove, render, RenderPosition } from '../utils/render.js';
 import { sortDateDown, sortPrice,  sortTime, filter } from '../utils/trip.js';
-import { SortTypes, UserAction, UpdateType, FilterType } from '../data.js';
+import { SortTypes, UserAction, UpdateType, FilterType } from '../const.js';
 
 import SortView from '../view/sort.js';
 import NoEventView from '../view/no-event.js';
@@ -8,8 +8,6 @@ import EventsListView from '../view/events-list.js';
 
 import EventPresenter from './event.js';
 import EventNewPresenter from './event-new.js';
-// import { defaults } from 'flatpickr/dist/types/options';
-// import { container } from 'webpack';
 
 export default class Trip {
   constructor(tripContainer, eventsModel, filterModel) {
@@ -20,7 +18,7 @@ export default class Trip {
 
     this._sortComponent = null;
     this._noTaskComponent = null;
-    // this._sortComponent = new SortView(this._currentSortType);
+
     this._noEventComponent = new NoEventView();
     this._eventListComponent = new EventsListView();
 
@@ -32,20 +30,30 @@ export default class Trip {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
-    this._eventsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
+    // this._activateNewEventButton = this._activateNewEventButton.bind(this);
+
     this._eventNewPresenter = new EventNewPresenter(this._eventListComponent, this._handleViewAction);
   }
 
   init() {
     render(this._tripContainer, this._eventListComponent, RenderPosition.BEFOREEND);
+    this._eventsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
     this._renderTrip();
   }
 
-  createEvent() {
+  destroy() {
+    this._clearTrip({resetSortType: true});
+    remove(this._eventListComponent);
+    this._eventsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
+  createEvent(callback) {
     this._currentSortType = SortTypes.DAY;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._eventNewPresenter.init();
+    this._eventNewPresenter.init(callback);
   }
 
   _getEvents() {
@@ -55,25 +63,11 @@ export default class Trip {
     switch (this._currentSortType) {
       case SortTypes.DAY:
         return filtredEvents.sort(sortDateDown);
-        // return this._eventsModel.getEvents().slice().sort(sortDateDown);
-      // this._tripEvents = this._sourcedTripEvents.slice();
-      // this._currentSortType = sortType;
-      // break;
       case SortTypes.TIME:
         return filtredEvents.sort(sortTime);
-        // return this._eventsModel.getEvents().slice().sort(sortTime);
-        // this._tripEvents.sort(sortTime);
-        //this._currentSortType = sortType;
-        // break;
       case SortTypes.PRICE:
         return filtredEvents.sort(sortPrice);
-        // return this._eventsModel.getEvents().slice().sort(sortPrice);
-        // this._tripEvents.sort(sortPrice);
-        // this._currentSortType = sortType;
-        // break;
-      // default: this._currentSortType = SortTypes.DAY;
     }
-    // return this._eventsModel.getEvents().slice().sort(sortDateDown);
   }
 
   _handleModeChange() {
@@ -143,22 +137,15 @@ export default class Trip {
     // this._renderEventList();
   }
 
-  // _sortEvents(sortType) {
-  //   switch (sortType) {
-  //     case SortTypes.DAY.toLowerCase():
-  //       this._tripEvents = this._sourcedTripEvents.slice();
-  //       this._currentSortType = sortType;
-  //       break;
-  //     case SortTypes.TIME.toLowerCase():
-  //       this._tripEvents.sort(sortTime);
-  //       this._currentSortType = sortType;
-  //       break;
-  //     case SortTypes.PRICE.toLowerCase():
-  //       this._tripEvents.sort(sortPrice);
-  //       this._currentSortType = sortType;
-  //       break;
-  //   }
+  // _activateNewEventButton() {
+  //   const newEventButton = document.querySelector('.trip-main__event-add-btn');
+  //   //newEventButton.addEventListener('click', (evt) => {
+  //   //   evt.preventDefault();
+  //   //   tripPresenter.createEvent(handleNewEventFormClose);
+  //   newEventButton.disabled = true;
+  //   // });
   // }
+
 
   _renderSort() {
     if (this._sortComponent !== null) {
@@ -208,8 +195,6 @@ export default class Trip {
 
   _renderTrip() {
     // Метод для инициализации (начала работы) модуля
-    // if (!this._tripEvents.length) {
-    // if (!this._getEvents().length) {
     const events = this._getEvents();
     const eventCount = events.length;
     if (eventCount === 0) {

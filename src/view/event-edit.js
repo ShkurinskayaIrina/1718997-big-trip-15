@@ -1,24 +1,27 @@
 import SmartView from '../view/smart.js';
 
 import { filterOffersByType } from '../utils/trip.js';
-import { EVENT_TYPES } from '../data.js';
-import { СITIES } from '../data.js';
+import { EVENT_TYPES } from '../const.js';
+import { СITIES } from '../const.js';
 import { mockDescriptionOfDestinations } from '../mock/mock-events.js';
 import { formattingDateDMYHM, isInvalidDatePeriod } from '../utils/trip.js';
+
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
   basePrice : '',
+  dataFrom: null,
+  dataTo: null,
   destination : {
     city: '',
     description: null,
     pictures: null,
   },
   type: EVENT_TYPES[0].toLowerCase(),
-  offers : [],
-  isFavorite : false,
-  isNew : true,
+  offers: [],
+  isFavorite: false,
+  isBlank: true,
 };
 
 const isChecked = (findOffer, arrayOffers) => arrayOffers.some((offer) => offer.title===findOffer.title);
@@ -76,7 +79,7 @@ const showRollupBtn = () =>
     <span class="visually-hidden">Open event</span>
   </button>`;
 
-const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, offers, isOffers, isDestination, isNew}) =>
+const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, offers, isOffers, isDestination, isBlank}) =>
   `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
@@ -104,10 +107,10 @@ const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, 
         </div>
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formattingDateDMYHM(dateFrom)}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? formattingDateDMYHM(dateFrom) : ''}">
             &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? formattingDateDMYHM(dateTo) : ''}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -118,8 +121,8 @@ const showEventEditTemplate = ({type, dateFrom, dateTo, destination, basePrice, 
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
         </div>
         <button class="event__save-btn  btn  btn--blue" type="submit" ${isInvalidDatePeriod(dateTo, dateFrom) ? 'disabled' : ''}>Save</button>
-        <button class="event__reset-btn" type="reset">${isNew ? 'Cancel' : 'Delete'}</button>
-        ${isNew ? '' :showRollupBtn()}
+        <button class="event__reset-btn" type="reset">${isBlank ? 'Cancel' : 'Delete'} </button>
+        ${isBlank ? '' : showRollupBtn()}
       </header>
       <section class="event__details">
         ${isOffers ? showEventOffersTemplate(type, offers) : ''}
@@ -206,11 +209,11 @@ export default class EventEdit extends SmartView {
     this._datepickerStart = flatpickr(
       this.getElement().querySelector('[name = "event-start-time"]'),
       {
-        // mode: 'range',
         enableTime: true,
+        // eslint-disable-next-line camelcase
+        time_24hr: true, //линтер ругается
         dateFormat: 'd/m/y H:i',
-        defaultDate: formattingDateDMYHM(this._data.dateFrom),
-        // defaultDate: [formattingDateDMYHM(this._data.dateFrom), formattingDateDMYHM(this._data.dataTo)],
+        defaultDate: null,
         onChange: this._startTimeChangeHandler,
       },
     );
@@ -224,11 +227,11 @@ export default class EventEdit extends SmartView {
     this._datepickerEnd = flatpickr(
       this.getElement().querySelector('[name = "event-end-time"]'),
       {
-        // mode: 'range',
         enableTime: true,
+        // eslint-disable-next-line camelcase
+        time_24hr: true,
         dateFormat: 'd/m/y H:i',
-        defaultDate: formattingDateDMYHM(this._data.dateTo),
-        // defaultDate: [formattingDateDMYHM(this._data.dateFrom), formattingDateDMYHM(this._data.dataTo)],
+        defaultDate: null,
         onChange: this._endTimeChangeHandler,
       },
     );
@@ -241,10 +244,10 @@ export default class EventEdit extends SmartView {
     this.getElement().querySelector('.event__field-group--destination')
       .addEventListener('change', this._destinationToggleHandler);
     if (this._data.isOffers) {
-      this.getElement().querySelector('.event__available-offers')
-        .addEventListener('click', this._offersToggleHandler);
+      const offers = this.getElement().querySelectorAll('.event__offer-checkbox');
+      offers.forEach((offer) => {offer.addEventListener('change', this._offersToggleHandler);
+      });
     }
-
     this.getElement().querySelector('.event__field-group--price')
       .addEventListener('change', this._priceToggleHandler);
   }
@@ -297,25 +300,10 @@ export default class EventEdit extends SmartView {
   _offersToggleHandler(evt) {
     evt.preventDefault();
     const selectedOffer = new Object();
-    if (evt.target.tagName === 'SPAN') {
-      if (evt.target.className === 'event__offer-title') {
-        selectedOffer.title = evt.target.textContent;
-        selectedOffer.price = Number(evt.target.parentNode.lastElementChild.textContent);
-        // selectedOffer.checked = !evt.target.parentNode.previousElementSibling.checked;
+    const labelOfferChecked = this.getElement().querySelector(`label[for = "${evt.target.id}"]`);
+    selectedOffer.title = labelOfferChecked.querySelector('.event__offer-title').textContent;
+    selectedOffer.price = labelOfferChecked.querySelector('.event__offer-price').textContent;
 
-      } else if ( evt.target.className === 'event__offer-price') {
-        selectedOffer.title = evt.target.parentNode.firstElementChild.textContent;
-        selectedOffer.price = Number(evt.target.textContent);
-        // selectedOffer.checked = !evt.target.parentNode.previousElementSibling.checked;
-      }
-
-    } else if (evt.target.tagName === 'LABEL') {
-      selectedOffer.title = evt.target.childNodes[1].textContent;
-      selectedOffer.price = Number(evt.target.lastElementChild.textContent);
-      // selectedOffer.checked = !evt.target.previousElementSibling.checked;
-    } else {
-      return;
-    }
     const selectedOffers = this._data.offers.slice(0);
 
     const isCheckedOffer = this._data.offers.length ? this._data.offers.findIndex((offer) => (offer.title) === selectedOffer.title) : -1;
@@ -359,11 +347,6 @@ export default class EventEdit extends SmartView {
     this._callback.btnClick();
   }
 
-  // static setFormCloseHandler() {
-  //   const newEventButton = document.querySelector('.trip-main__event-add-btn');
-  //   newEventButton.disabled = false;
-  // }
-
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().querySelector('form').addEventListener('submit', this._formSubmitHandler);
@@ -371,7 +354,7 @@ export default class EventEdit extends SmartView {
 
   setRollUpClickHandler(callback) {
     this._callback.btnClick = callback;
-    if (!this._data.isNew) {
+    if (!this._data.isBlank) {
       this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._rollUpClickHandler);
     }
   }
@@ -381,13 +364,13 @@ export default class EventEdit extends SmartView {
     if (event.type) {
       allOffersByType = filterOffersByType(event.type)[0].offers[0];
     }
-
     return Object.assign(
       {},
       event,
       {
         isOffers: !!allOffersByType,
         isDestination: !!event.destination.description,
+        isBlank: event.isBlank? event.isBlank : false,
       },
     );
   }
@@ -396,7 +379,7 @@ export default class EventEdit extends SmartView {
     data = Object.assign({}, data);
     delete data.isOffers;
     delete data.isDestination;
-    // EventEdit.setFormCloseHandler();
+    delete data.isBlank;
     return data;
   }
 }

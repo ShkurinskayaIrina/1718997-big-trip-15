@@ -1,7 +1,7 @@
 import EventView from '../view/event.js';
 import EventEditView from '../view/event-edit.js';
 import { render, RenderPosition, replace,  remove } from '../utils/render.js';
-import { UserAction, UpdateType, SortTypes } from '../data.js';
+import { UserAction, UpdateType, SortTypes } from '../const.js';
 import { isDatesEqual } from '../utils/trip.js';
 
 const Mode = {

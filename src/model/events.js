@@ -1,4 +1,4 @@
-import AbstractObserver from '../utils/abstract-observer.js';
+import AbstractObserver from './abstract-observer.js';
 
 export default class Events extends AbstractObserver {
   constructor() {

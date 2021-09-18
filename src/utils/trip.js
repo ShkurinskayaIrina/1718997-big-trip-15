@@ -1,15 +1,22 @@
-import { OFFERS, FilterType } from '../data.js';
+import { OFFERS, FilterType } from '../const.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
-// import relativeTime from 'dayjs/plugin/relativeTime';
-// dayjs.extend(relativeTime);
 
 export const filterOffersByType = (type) => OFFERS.filter((offer) => offer.type === type);
+
 export const sortDateDown = (prev, next) => next.dateFrom - prev.dateFrom;
 export const sortPrice = (prev, next) => next.basePrice - prev.basePrice;
 export const sortTime = (prev, next) => dayjs(next.dateTo).diff(next.dateFrom,'minutes') - dayjs(prev.dateTo).diff(prev.dateFrom,'minutes');
+
+export const sort = {
+  money: (prev, next) => next.money - prev.money,
+  typeCount:(prev, next) => next.count - prev.count,
+  time: (prev, next) => next.time - prev.time,
+};
+
+export const countDurationEvent = (dateStart, dateEnd) => dayjs.duration(dayjs(dateEnd).diff(dayjs(dateStart))).$ms;
 
 export const formattingDateDMYHM = (dateTime) => dayjs(dateTime).format('DD/MM/YY HH:mm');
 export const formattingDateYMDHM = (dateTime) => dayjs(dateTime).format('YY-MM-DDTHH:mm');
@@ -19,23 +26,56 @@ export const formattingDateHM = (dateTime) => dayjs(dateTime).format('HH:mm');
 
 export const isInvalidDatePeriod = (dateTo, dateFrom) => dayjs(dateFrom).isAfter(dayjs(dateTo), 'minute');
 
-const formattingDigitToNumber = (digit) => (`00${digit}`).slice(-2);
-export const formattingDateDiff = (dateStart, dateEnd) => {
-  const durationEvent = dayjs.duration(dayjs(dateEnd).diff(dayjs(dateStart)));
+const formatDigitToNumber = (digit) => (`00${digit}`).slice(-2);
 
-  const durationDays = formattingDigitToNumber(durationEvent.days());
-  const durationHours = formattingDigitToNumber(durationEvent.hours());
-  const durationMinutes = formattingDigitToNumber(durationEvent.minutes());
+const formatDurationEvent = (durationEvent) => {
+  let days = '';
+  let hours = '';
+  let minutes = '';
 
-  let formattingDurationEvent = '';
-  if (durationDays > 0) {
-    formattingDurationEvent = `${durationDays}D ${durationHours}H ${durationMinutes}M`;
-  } else if (durationHours > 0) {
-    formattingDurationEvent = `${durationHours}H ${durationMinutes}M`;
-  } else {
-    formattingDurationEvent = `${durationMinutes}M`;
+  if (durationEvent.days > 0) {
+    days = `${formatDigitToNumber(durationEvent.days)}D`;
+    hours = '00H';
   }
-  return formattingDurationEvent;
+
+  if (durationEvent.hours > 0) {
+    hours = `${formatDigitToNumber(durationEvent.hours)}H`;
+  }
+
+  minutes = `${formatDigitToNumber(durationEvent.minutes)}M`;
+  return `${days} ${hours} ${minutes}`;
+};
+
+export const separationDurationEvent = (durationEvent) => {
+  const msInSecond = 1000;
+  const msInMinute = msInSecond * 60;
+  const msInHour = msInMinute * 60;
+  const msInDays = msInHour * 24;
+
+  const days = parseInt(durationEvent / msInDays, 10);
+  const hours = parseInt((durationEvent - days * msInDays) / msInHour, 10);
+  const minutes = parseInt((durationEvent- days * msInDays - hours * msInHour) / msInMinute, 10);
+
+  const separateDurationEvent = {
+    days: days,
+    hours: hours,
+    minutes: minutes,
+  };
+  return formatDurationEvent (separateDurationEvent);
+};
+
+
+export const formattingDateDiff = (dateStart, dateEnd) => {
+  console.log(dateStart, dateEnd);
+  const durationEvent = countDurationEvent (dateStart, dateEnd);
+  console.log(durationEvent);
+  const separateDurationEvent = {
+    days: durationEvent.days(),
+    hours: durationEvent.hours(),
+    minutes: durationEvent.minutes(),
+  };
+
+  return formatDurationEvent (separateDurationEvent);
 };
 
 export const isDatesEqual = (dateA, dateB) =>
@@ -50,10 +90,3 @@ export const filter = {
   (dayjs(tripEvent.dateFrom).isBefore(dayjs()) && dayjs(tripEvent.dateTo).isAfter(dayjs()))),
 };
 
-//   [FilterType.FUTURE]: (tripEvents) => tripEvents.filter((tripEvent) => dayjs().isBefore(dayjs(tripEvent.dateFrom), 'minute') ||
-//    (dayjs().isAfter(dayjs(tripEvent.dateFrom), 'minute') && dayjs().isBefore(dayjs(tripEvent.dateTo), 'minute'))),
-
-
-//   [FilterType.PAST]: (tripEvents) => tripEvents.filter((tripEvent) => dayjs().isAfter(dayjs(tripEvent.dateTo), 'minute') ||
-//   (dayjs().isAfter(dayjs(tripEvent.dateFrom), 'minute') && dayjs().isBefore(dayjs(tripEvent.dateTo), 'minute'))),
-// };

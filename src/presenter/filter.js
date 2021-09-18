@@ -1,7 +1,7 @@
 import FilterView from '../view/filter.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 // import {filter} from '../utils/trip.js';
-import {UpdateType} from '../data.js'; //FilterType
+import {UpdateType} from '../const.js'; //FilterType
 
 
 export default class Filter {
