@@ -64,20 +64,6 @@ export const separationDurationEvent = (durationEvent) => {
   return formatDurationEvent (separateDurationEvent);
 };
 
-
-export const formattingDateDiff = (dateStart, dateEnd) => {
-  console.log(dateStart, dateEnd);
-  const durationEvent = countDurationEvent (dateStart, dateEnd);
-  console.log(durationEvent);
-  const separateDurationEvent = {
-    days: durationEvent.days(),
-    hours: durationEvent.hours(),
-    minutes: durationEvent.minutes(),
-  };
-
-  return formatDurationEvent (separateDurationEvent);
-};
-
 export const isDatesEqual = (dateA, dateB) =>
   (dateA === null && dateB === null) ? true : dayjs(dateA).isSame(dateB);
 
