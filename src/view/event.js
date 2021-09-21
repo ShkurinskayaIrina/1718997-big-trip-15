@@ -1,6 +1,6 @@
 ///написать ф-цию подсчета времени в пути
 import AbstractView from '../view/abstract.js';
-import { formattingDateYMDHM, formattingDateYDM, formattingDateMD, formattingDateHM, formattingDateDiff } from '../utils/trip.js';
+import { formattingDateYMDHM, formattingDateYDM, formattingDateMD, formattingDateHM, countDurationEvent, separationDurationEvent } from '../utils/trip.js';
 
 const creatEventOfferTemplate = (offers) =>
   offers.map(({title, price}) =>
@@ -21,14 +21,14 @@ export const showEventTemplate = ({dateFrom, dateTo, destination, type, basePric
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${type} ${destination.city}</h3>
+      <h3 class="event__title">${type} ${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="${formattingDateYMDHM(dateFrom)}">${formattingDateHM(dateFrom)}</time>
                     &mdash;
           <time class="event__end-time" datetime="${formattingDateYMDHM(dateTo)}">${formattingDateHM(dateTo)}</time>
         </p>
-        <p class="event__duration">${formattingDateDiff(dateFrom, dateTo)}</p>
+        <p class="event__duration">${separationDurationEvent(countDurationEvent(dateFrom, dateTo))}</p>
       </div>
       <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${basePrice}</span>

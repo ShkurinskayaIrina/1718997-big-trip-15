@@ -1,4 +1,4 @@
-import { SortTypes } from '../data.js';
+import { SortTypes } from '../const.js';
 import AbstractView from '../view/abstract.js';
 
 const getProperty = (sortType, type) => {

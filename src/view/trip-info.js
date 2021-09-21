@@ -2,7 +2,7 @@ import AbstractView from '../view/abstract.js';
 
 const generateTripInfoMain = (tripEvents) => {
   //некорректно работает
-  const cityFirst = tripEvents[0].destination.city;
+  const cityFirst = tripEvents[0].destination.name;
   let cityFinal = '';
 
   const dateFirst = tripEvents[0].dateFrom;
@@ -12,7 +12,7 @@ const generateTripInfoMain = (tripEvents) => {
 
   if (tripEvents.length > 1 ){
     separator = '— ... —';
-    cityFinal = tripEvents[tripEvents.length-1].destination.city;
+    cityFinal = tripEvents[tripEvents.length-1].destination.name;
     dateFinal = tripEvents[tripEvents.length-1].dateTo;
     if ( tripEvents.length === 2 ) {
       separator = '—';
