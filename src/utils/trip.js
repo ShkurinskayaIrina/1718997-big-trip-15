@@ -1,10 +1,7 @@
-import { OFFERS, FilterType } from '../const.js';
+import { FilterType } from '../const.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
-
-
-export const filterOffersByType = (type) => OFFERS.filter((offer) => offer.type === type);
 
 export const sortDateDown = (prev, next) => next.dateFrom - prev.dateFrom;
 export const sortPrice = (prev, next) => next.basePrice - prev.basePrice;
