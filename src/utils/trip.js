@@ -1,4 +1,4 @@
-import { FilterType } from '../const.js';
+import { FilterType, ChartType } from '../const.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -7,10 +7,10 @@ export const sortDateDown = (prev, next) => next.dateFrom - prev.dateFrom;
 export const sortPrice = (prev, next) => next.basePrice - prev.basePrice;
 export const sortTime = (prev, next) => dayjs(next.dateTo).diff(next.dateFrom,'minutes') - dayjs(prev.dateTo).diff(prev.dateFrom,'minutes');
 
-export const sort = {
-  money: (prev, next) => next.money - prev.money,
-  typeCount:(prev, next) => next.count - prev.count,
-  time: (prev, next) => next.time - prev.time,
+export const SortingByStatsType = {
+  [ChartType.MONEY]: (prev, next) => next.money - prev.money,
+  [ChartType.TYPE]: (prev, next) => next.count - prev.count,
+  [ChartType.TIME_SPAND]: (prev, next) => next.time - prev.time,
 };
 
 export const countDurationEvent = (dateStart, dateEnd) => dayjs.duration(dayjs(dateEnd).diff(dayjs(dateStart))).$ms;
@@ -20,8 +20,7 @@ export const formattingDateYMDHM = (dateTime) => dayjs(dateTime).format('YY-MM-D
 export const formattingDateMD = (dateTime) => dayjs(dateTime).format('MMM DD').toUpperCase();
 export const formattingDateYDM = (dateTime) => dayjs(dateTime).format('YYYY-DD-MM');
 export const formattingDateHM = (dateTime) => dayjs(dateTime).format('HH:mm');
-
-export const isInvalidDatePeriod = (dateTo, dateFrom) => dayjs(dateFrom).isAfter(dayjs(dateTo), 'minute');
+export const formattingDefaultDate = (dateTime) => dayjs(dateTime).format('DD/MM/YY 00:00');
 
 const formatDigitToNumber = (digit) => (`00${digit}`).slice(-2);
 
@@ -65,7 +64,7 @@ export const isDatesEqual = (dateA, dateB) =>
   (dateA === null && dateB === null) ? true : dayjs(dateA).isSame(dateB);
 
 
-export const filter = {
+export const FilteringByFilterType = {
   [FilterType.EVERYTHING]: (tripEvents) => tripEvents,
   [FilterType.FUTURE]: (tripEvents) => tripEvents.filter((tripEvent) => dayjs().isBefore(dayjs(tripEvent.dateFrom)) ||
   (dayjs(tripEvent.dateFrom).isBefore(dayjs()) && dayjs(tripEvent.dateTo).isAfter(dayjs()))),

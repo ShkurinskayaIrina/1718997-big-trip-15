@@ -1,8 +1,6 @@
 import FilterView from '../view/filter.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
-// import {filter} from '../utils/trip.js';
-import {UpdateType} from '../const.js'; //FilterType
-
+import {UpdateType} from '../const.js';
 
 export default class Filter {
   constructor(filterContainer, filterModel, eventsModel) {
@@ -20,10 +18,8 @@ export default class Filter {
   }
 
   init() {
-    // const filters = this._getFilters();
     const prevFilterComponent = this._filterComponent;
-    // this._filterComponent = new FilterView(filters, this._filterModel.getFilter());
-    this._filterComponent = new FilterView(this._filterModel.getFilter());
+    this._filterComponent = new FilterView(this._filterModel.getFilter(), this._filterModel.getMenuItem());
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
@@ -40,31 +36,6 @@ export default class Filter {
   }
 
   _handleFilterTypeChange(filterType) {
-    // if (this._filterModel.getFilter() === filterType) {
-    //   return;
-    // }
     this._filterModel.setFilter(UpdateType.MAJOR, filterType);
   }
-
-  // _getFilters() {
-  //   // const events = this._eventsModel.getEvents();
-
-  //   return [
-  //     {
-  //       type: FilterType.EVERYTHING,
-  //       // name: 'All',
-  //       // count: filter[FilterType.ALL](tasks).length,
-  //     },
-  //     {
-  //       type: FilterType.FUTURE,
-  //       // name: 'Overdue',
-  //       // count: filter[FilterType.OVERDUE](tasks).length,
-  //     },
-  //     {
-  //       type: FilterType.PAST,
-  //       // name: 'Today',
-  //       // count: filter[FilterType.TODAY](tasks).length,
-  //     },
-  //   ];
-  // }
 }

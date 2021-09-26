@@ -13,13 +13,13 @@ export default class EventNew {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(callback) {
+  init(callback, additionalData) {
     this._destroyCallback = callback;
 
     if (this._eventEditComponent !== null) {
       return;
     }
-    this._eventEditComponent = new EventEditView();
+    this._eventEditComponent = new EventEditView(null, additionalData);
     this._eventEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
     render(this._eventListContainer, this._eventEditComponent, RenderPosition.AFTERBEGIN);
@@ -66,7 +66,6 @@ export default class EventNew {
       UpdateType.MINOR,
       event,
     );
-    // this.destroy();
   }
 
   _handleDeleteClick() {

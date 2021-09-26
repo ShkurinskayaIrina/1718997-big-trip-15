@@ -18,11 +18,11 @@ export const FilterType = {
 
 
 export const SortTypes = {
-  DAY : 'day',
-  EVENT : 'event',
-  TIME : 'time',
-  PRICE : 'price',
-  OFFERS : 'offers',
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFERS: 'offers',
 };
 
 export const UserAction = {
@@ -32,10 +32,10 @@ export const UserAction = {
 };
 
 export const UpdateType = {
-  PATCH: 'PATCH', //обновить часть списка (например, когда поменялось описание)
-  MINOR: 'MINOR', //обновить список (например, когда изменились данные, касающиеся тек фильтрации)
-  MAJOR: 'MAJOR', //обновить весь список (например, при переключении фильтра)
-  INIT: 'INIT', //обновить список при инициализации приложения
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 export const MenuItem = {
@@ -43,8 +43,14 @@ export const MenuItem = {
   STATS: 'Stats',
 };
 
-export const ChartTitle = {
+export const ChartType = {
   MONEY: 'MONEY',
   TYPE: 'TYPE',
   TIME_SPAND: 'TIME-SPAND',
+};
+
+
+export const ErrorMessages = {
+  DESTINATION: 'Выберите город из списка!',
+  PRICE: 'Введите целое положительное число!',
 };

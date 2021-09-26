@@ -15,9 +15,10 @@ export const State = {
   ABORTING: 'ABORTING',
 };
 export default class Event {
-  constructor (eventListContainer, changeData, changeMode, currentSortType) {
+  constructor (eventListContainer, changeData, changeMode, currentSortType, additionalData) {
     this._eventListContainer = eventListContainer;
     this._changeData = changeData;
+    this._additionalData = additionalData;
     this._changeMode = changeMode;
     this._currentSortType = currentSortType;
     this._eventComponent = null;
@@ -37,8 +38,8 @@ export default class Event {
     const prevEventComponent = this._eventComponent;
     const prevEventEditComponent = this._eventEditComponent;
 
-    this._eventComponent = new EventView(tripEvent);
-    this._eventEditComponent = new EventEditView(tripEvent);
+    this._eventComponent = new EventView(tripEvent, this._additionalData);
+    this._eventEditComponent = new EventEditView(tripEvent, this._additionalData);
 
     this._eventComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._eventComponent.setEditClickHandler(this._handleEditClick);
@@ -56,7 +57,6 @@ export default class Event {
     }
 
     if (this._mode === Mode.EDITING) {
-      // replace(this._eventEditComponent, prevEventEditComponent);
       replace(this._eventComponent, prevEventEditComponent);
       this._mode = Mode.DEFAULT;
     }
@@ -166,16 +166,11 @@ export default class Event {
       }
     }
 
-    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
-    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
-    // const isMinorUpdate =
-
     this._changeData(
       UserAction.UPDATE_EVENT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update,
     );
-    // this._replaceEditToEvent();
   }
 
   _handleDeleteClick(event) {

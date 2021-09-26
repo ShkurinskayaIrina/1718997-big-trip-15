@@ -1,5 +1,5 @@
 import { remove, render, RenderPosition } from '../utils/render.js';
-import { sortDateDown, sortPrice,  sortTime, filter } from '../utils/trip.js';
+import { sortDateDown, sortPrice,  sortTime, FilteringByFilterType } from '../utils/trip.js';
 import { SortTypes, UserAction, UpdateType, FilterType } from '../const.js';
 
 import SortView from '../view/sort.js';
@@ -34,7 +34,6 @@ export default class Trip {
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
     this._eventNewPresenter = new EventNewPresenter(this._eventListComponent, this._handleViewAction);
   }
 
@@ -42,7 +41,6 @@ export default class Trip {
     render(this._tripContainer, this._eventListComponent, RenderPosition.BEFOREEND);
     this._eventsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-
     this._renderTrip();
   }
 
@@ -56,13 +54,17 @@ export default class Trip {
   createEvent(callback) {
     this._currentSortType = SortTypes.DAY;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._eventNewPresenter.init(callback);
+    this._additionalData = {
+      cities: this._eventsModel.getCities(),
+      offers: this._eventsModel.getOffers(),
+      destinations: this._eventsModel.getDestinations()};
+    this._eventNewPresenter.init(callback, this._additionalData);
   }
 
   _getEvents() {
     this._filterType = this._filterModel.getFilter();
     const events = this._eventsModel.getEvents();
-    const filtredEvents = filter[this._filterType](events);
+    const filtredEvents = FilteringByFilterType[this._filterType](events);
     switch (this._currentSortType) {
       case SortTypes.DAY:
         return filtredEvents.sort(sortDateDown);
@@ -73,19 +75,84 @@ export default class Trip {
     }
   }
 
+  _renderSort() {
+    if (this._sortComponent !== null) {
+      this._sortComponent = null;
+    }
+    this._sortComponent = new SortView(this._currentSortType);
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
+    render(this._tripContainer, this._sortComponent, RenderPosition.AFTERBEGIN);
+  }
+
+  _clearTrip({resetSortType = false} = {}) {
+    this._eventNewPresenter.destroy();
+    this._eventPresenter.forEach((presenter) => presenter.destroy());
+    this._eventPresenter.clear();
+
+    remove(this._sortComponent);
+    remove(this._noEventComponent);
+
+    if (resetSortType) {
+      this._currentSortType = SortTypes.DAY;
+    }
+  }
+
+  _renderNoEvents() {
+    this._noEventComponent = new NoEventView(this._filterType);
+    render(this._tripContainer, this._noEventComponent, RenderPosition.BEFOREEND);
+  }
+
+  _renderEvent(tripEvent, additionalData) {
+    const eventPresenter = new EventPresenter(
+      this._eventListComponent,
+      this._handleViewAction,
+      this._handleModeChange,
+      this._currentSortType,
+      additionalData,
+    );
+    eventPresenter.init(tripEvent);
+    this._eventPresenter.set(tripEvent.id, eventPresenter);
+  }
+
+  _renderEvents(events) {
+    const additionalData = {
+      cities: this._eventsModel.getCities(),
+      offers: this._eventsModel.getOffers(),
+      destinations: this._eventsModel.getDestinations()};
+
+    events.forEach((tripEvent) => this._renderEvent(tripEvent, additionalData));
+  }
+
+  _renderLoading() {
+    render(this._tripContainer, this._loadingComponent, RenderPosition.AFTERBEGIN);
+  }
+
+  _renderTrip() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
+    const events = this._getEvents();
+
+    const eventCount = events.length;
+    if (eventCount === 0) {
+      this._renderNoEvents();
+      return;
+    }
+
+    this._renderSort();
+    this._renderEvents(events);
+  }
+
   _handleModeChange() {
     this._eventNewPresenter.destroy();
     this._eventPresenter.forEach((presenter) => presenter.resetView());
   }
 
   _handleViewAction(actionType, updateType, update) {
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        // this._eventsModel.updateEvent(updateType, update);
         this._eventPresenter.get(update.id).setViewState(EventPresenterViewState.SAVING);
         this._api.updateEvent(update)
           .then((response) => {
@@ -116,23 +183,15 @@ export default class Trip {
   }
 
   _handleModelEvent(updateType, data) {
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда изменились данные, касающиеся тек фильтрации)
-    // - обновить весь список (например, при переключении фильтра)
     switch (updateType) {
       case UpdateType.PATCH:
-        //обновить часть списка (например, когда поменялось описание)
         this._eventPresenter.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        //обновить список (например, когда изменилась дата события)
         this._clearTrip();
         this._renderTrip();
         break;
       case UpdateType.MAJOR:
-        //обновить весь список (например, при переключении фильтра)
-        // this._clearBoard({resetRenderedTaskCount: true, resetSortType: true});
         this._clearTrip({resetSortType: true});
         this._renderTrip();
         break;
@@ -154,71 +213,4 @@ export default class Trip {
     this._renderTrip();
   }
 
-  _renderSort() {
-    if (this._sortComponent !== null) {
-      this._sortComponent = null;
-    }
-    this._sortComponent = new SortView(this._currentSortType);
-    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
-    render(this._tripContainer, this._sortComponent, RenderPosition.AFTERBEGIN);
-  }
-
-  // _renderEventList() {
-  // //   render(this._tripContainer, this._eventListComponent, RenderPosition.BEFOREEND);
-  // //   this._renderEvents();
-  //   const events = this._getEvents();
-  //   this._renderEvents(events);
-  // }
-
-  _clearTrip({resetSortType = false} = {}) {
-    this._eventNewPresenter.destroy();
-    this._eventPresenter.forEach((presenter) => presenter.destroy());
-    this._eventPresenter.clear();
-
-    remove(this._sortComponent);
-    remove(this._noEventComponent);
-
-    if (resetSortType) {
-      // ссбрасывает сортировку при переключении фильтров (пункт 1.7 ТЗ)
-      this._currentSortType = SortTypes.DAY;
-    }
-  }
-
-  _renderNoEvents() {
-    this._noEventComponent = new NoEventView(this._filterType);
-    render(this._tripContainer, this._noEventComponent, RenderPosition.BEFOREEND);
-  }
-
-  _renderEvent(tripEvent) {
-    const eventPresenter = new EventPresenter(this._eventListComponent, this._handleViewAction, this._handleModeChange, this._currentSortType);
-    eventPresenter.init(tripEvent);
-    this._eventPresenter.set(tripEvent.id, eventPresenter);
-  }
-
-  _renderEvents(events) {
-    // this._tripEvents.forEach((tripEvent) => this._renderEvent(tripEvent));
-    events.forEach((tripEvent) => this._renderEvent(tripEvent));
-  }
-
-  _renderLoading() {
-    render(this._tripContainer, this._loadingComponent, RenderPosition.AFTERBEGIN);
-  }
-
-  _renderTrip() {
-    if (this._isLoading) {
-      this._renderLoading();
-      return;
-    }
-    // Метод для инициализации (начала работы) модуля
-    const events = this._getEvents();
-
-    const eventCount = events.length;
-    if (eventCount === 0) {
-      this._renderNoEvents();
-      return;
-    }
-
-    this._renderSort();
-    this._renderEvents(events);
-  }
 }

@@ -11,15 +11,15 @@ const getProperty = (sortType, type) => {
   }
 };
 
-const tripSort = (sortType) => Object.values(SortTypes).map((type) =>
+const createSortTypesTemplate = (sortType) => Object.values(SortTypes).map((type) =>
   `<div class="trip-sort__item  trip-sort__item--${type}">
     <input id="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type}" ${getProperty(sortType, type)}>
     <label class="trip-sort__btn" data-sort-type="${type}" for="sort-${type}">${type}</label>
   </div>`).join('');
 
-export const showSortTemplate = (sortType) =>
+const createSortTemplate = (sortType) =>
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-    ${tripSort(sortType)}
+    ${createSortTypesTemplate(sortType)}
   </form>`;
 export default class Sort extends AbstractView {
   constructor(currentSortType) {
@@ -29,7 +29,7 @@ export default class Sort extends AbstractView {
   }
 
   getTemplate() {
-    return showSortTemplate(this._currentSortType);
+    return createSortTemplate(this._currentSortType);
   }
 
   _sortTypeChangeHandler(evt) {

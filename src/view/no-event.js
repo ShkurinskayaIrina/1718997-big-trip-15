@@ -1,13 +1,13 @@
 import AbstractView from '../view/abstract.js';
 import { FilterType } from '../const.js';
 
-export const NoEventsTextType = {
+const NoEventsTextType = {
   [FilterType.EVERYTHING] : 'Click New Event to create your first point',
   [FilterType.FUTURE] : 'There are no future events now',
   [FilterType.PAST] : 'There are no past events now',
 };
 
-const showNoEventTemplate = (filterType) => {
+const createNoEventTemplate = (filterType) => {
   const NoEventTextType = NoEventsTextType[filterType];
 
   return (
@@ -21,6 +21,6 @@ export default class NoEvent extends AbstractView {
   }
 
   getTemplate() {
-    return showNoEventTemplate(this._data);
+    return createNoEventTemplate(this._data);
   }
 }

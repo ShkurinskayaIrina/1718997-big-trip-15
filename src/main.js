@@ -1,8 +1,6 @@
-// import { generateMockEvents } from './mock/mock-events.js';
 import { render, remove, RenderPosition } from './utils/render.js';
 import { MenuItem } from './const.js';
 
-// import TripInfoView from './view/trip-info.js';
 import SiteMenuView from './view/site-menu.js';
 import StatisticsView from './view/statistics.js';
 
@@ -19,8 +17,8 @@ const AUTHORIZATION = 'Basic lt72Wq1kOmR9p7asXZ';
 const END_POINT = 'https://15.ecmascript.pages.academy/big-trip';
 
 
-const newEventButton = document.querySelector('.trip-main__event-add-btn');
-newEventButton.disabled = true;
+const newEventButtonElement = document.querySelector('.trip-main__event-add-btn');
+newEventButtonElement.disabled = true;
 
 const api = new Api(END_POINT, AUTHORIZATION);
 
@@ -28,9 +26,6 @@ const eventsModel = new EventsModel();
 const filterModel = new FilterModel();
 
 const mainElement = document.querySelector('.trip-main');
-// if (tripEvents.length) {
-//   render(mainElement, new TripInfoView(tripEvents), RenderPosition.AFTERBEGIN);
-// }
 
 const siteMenuElement = mainElement.querySelector('.trip-main__trip-controls');
 const siteMenuComponent = new SiteMenuView();
@@ -49,23 +44,25 @@ const handleSiteMenuClick = (menuItem) => {
   }
   switch (menuItem) {
     case MenuItem.TABLE:
-      // Скрыть статистику
+      filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING, MenuItem.TABLE);
+
       remove(statisticsComponent);
-      // Показать изменения в меню
+
       siteMenuComponent.setMenuItem(MenuItem.TABLE);
       siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
       menuItemActive = MenuItem.TABLE;
-      // Показать события
+
       tripPresenter.init();
       break;
     case MenuItem.STATS:
-      // Скрыть события
+
       tripPresenter.destroy();
-      // Показать изменения в меню
+      filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING, MenuItem.STATS);
+
       siteMenuComponent.setMenuItem(MenuItem.STATS);
       siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
       menuItemActive = MenuItem.STATS;
-      // Показать статистику
+
       statisticsComponent = new StatisticsView(eventsModel.getEvents());
       render(tripEventsElement, statisticsComponent, RenderPosition.BEFOREEND);
       break;
@@ -73,30 +70,29 @@ const handleSiteMenuClick = (menuItem) => {
 };
 
 const handleNewEventFormClose = () => {
-  newEventButton.disabled = false;
+  newEventButtonElement.disabled = false;
 };
 
 siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
 filterPresenter.init();
 tripPresenter.init();
 
-newEventButton.addEventListener('click', (evt) => {
+newEventButtonElement.addEventListener('click', (evt) => {
   evt.preventDefault();
-  // Скрыть статистику
+
   remove(statisticsComponent);
-  // Показать изменения в меню
+
   siteMenuComponent.setMenuItem(MenuItem.TABLE);
   siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
   menuItemActive = MenuItem.TABLE;
 
-  // Показать события
   tripPresenter.destroy();
-  filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+  filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING, MenuItem.TABLE);
   tripPresenter.init();
-  // Показать форму добавления новой задачи
+
   tripPresenter.createEvent(handleNewEventFormClose);
-  // Убрать выделение с New event после сохранения
-  newEventButton.disabled = true;
+
+  newEventButtonElement.disabled = true;
 });
 
 const selectionCitiesFromDestination = (destinations) => {
@@ -107,23 +103,28 @@ const selectionCitiesFromDestination = (destinations) => {
   return cities;
 };
 
-export let citiesAll = new Array;
-export let offersAll = new Array;
-export let destinationsAll = new Array;
+const TravelData = {
+  events: [],
+  cities: [],
+  offers: [],
+  destinations: [],
+};
+
 
 Promise.all([
   api.getEvents(),
   api.getDestinations(),
   api.getOffers()]).
   then(([events, destinations, offers]) => {
-    citiesAll = selectionCitiesFromDestination(destinations);
-    offersAll = offers;
-    destinationsAll = destinations;
-    eventsModel.setEvents(UpdateType.INIT, events);
-    newEventButton.disabled = false;
+    TravelData.events = events;
+    TravelData.cities = selectionCitiesFromDestination(destinations);
+    TravelData.offers = offers;
+    TravelData.destinations = destinations;
+    eventsModel.setEvents(UpdateType.INIT, TravelData);
+    newEventButtonElement.disabled = false;
   })
   .catch(() => {
-    eventsModel.setEvents(UpdateType.INIT, []);
-    newEventButton.disabled = false;
+    eventsModel.setEvents(UpdateType.INIT, TravelData);
+    newEventButtonElement.disabled = false;
   });
 

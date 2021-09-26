@@ -1,19 +1,19 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { ChartTitle } from '../const.js';
+import { ChartType } from '../const.js';
 import { separationDurationEvent } from './trip.js';
 
 const BAR_HEIGHT = 55;
 
 const formatVal = (titleText, val) => {
-  if (titleText === ChartTitle.MONEY) {
+  if (titleText === ChartType.MONEY) {
     return `€ ${val}`;
   }
 
-  if (titleText === ChartTitle.TYPE) {
+  if (titleText === ChartType.TYPE) {
     return `${val}x`;
   }
-  if (titleText ===ChartTitle.TIME_SPAND) {
+  if (titleText ===ChartType.TIME_SPAND) {
     return `${separationDurationEvent(val)}`;
   }
 };

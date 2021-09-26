@@ -1,7 +1,7 @@
 import SmartView from './smart.js';
 
-import { EVENT_TYPES, ChartTitle } from '../const.js';
-import { sort, countDurationEvent } from '../utils/trip.js';
+import { EVENT_TYPES, ChartType } from '../const.js';
+import { SortingByStatsType, countDurationEvent } from '../utils/trip.js';
 import { createChartTemplate } from '../utils/chart.js';
 
 const countMoneyByEventType = (events, type) =>
@@ -28,33 +28,30 @@ const countDataForChart = (events) => {
 };
 
 const renderMoneyChart = (moneyCtx, events) => {
-  // Функция для отрисовки графика по фин расходам
-  const dataForMoneyChart = events.slice(0).sort(sort.money).
+  const dataForMoneyChart = events.slice(0).sort(SortingByStatsType.MONEY).
     filter((event) => event.money > 0);
 
   const moneyDataLabels = dataForMoneyChart.map((data) => data.type);
   const moneyData = dataForMoneyChart.map((data) => data.money);
 
-  return createChartTemplate(moneyCtx, ChartTitle.MONEY, moneyDataLabels, moneyData);
+  return createChartTemplate(moneyCtx, ChartType.MONEY, moneyDataLabels, moneyData);
 };
 
 const renderTypesChart = (typeCtx, events) => {
-  // Функция для отрисовки графика по типам точек маршрута
-  const dataForTypeChart = events.slice(0).sort(sort.typeCount).
+  const dataForTypeChart = events.slice(0).sort(SortingByStatsType.TYPE).
     filter((event) => event.count > 0);
   const typeDataLabels = dataForTypeChart.map((data) => data.type);
   const typeData = dataForTypeChart.map((data) => data.count);
 
-  return createChartTemplate(typeCtx, ChartTitle.TYPE, typeDataLabels, typeData);
+  return createChartTemplate(typeCtx, ChartType.TYPE, typeDataLabels, typeData);
 };
 
 const renderTimeSpendChart = (timeSpendCtx, events) => {
-  // Функция для отрисовки графика по затраченному времени
-  const timeForTypeChart = events.slice(0).sort(sort.time).
+  const timeForTypeChart = events.slice(0).sort(SortingByStatsType['TIME-SPAND']).
     filter((event) => event.time > 0);
   const timeDataLabels = timeForTypeChart.map((data) => data.type);
   const timeData = timeForTypeChart.map((data) => data.time);
-  return createChartTemplate(timeSpendCtx, ChartTitle.TIME_SPAND, timeDataLabels, timeData);
+  return createChartTemplate(timeSpendCtx, ChartType.TIME_SPAND, timeDataLabels, timeData);
 };
 
 const createStatisticsTemplate = () => `<section class="statistics">
@@ -101,19 +98,18 @@ export default class Statistics extends SmartView {
   }
 
   _setCharts() {
-    // Нужно отрисовать 3 графика
     if (this._moneyCart !== null || this._typesChart !== null || this._timeSpendChart !== null) {
       this._moneyCart = null;
       this._typesChart = null;
       this._timeSpendChart = null;
     }
 
-    const moneyCtx = this.getElement().querySelector('#money');
-    const typeCtx = this.getElement().querySelector('#type');
-    const timeCtx = this.getElement().querySelector('#time-spend');
+    const moneyCtxElement = this.getElement().querySelector('#money');
+    const typeCtxElement = this.getElement().querySelector('#type');
+    const timeCtxElement = this.getElement().querySelector('#time-spend');
 
-    this._moneyCart = renderMoneyChart(moneyCtx, this._data);
-    this._typeChart = renderTypesChart(typeCtx, this._data);
-    this._timeChart = renderTimeSpendChart(timeCtx, this._data);
+    this._moneyCart = renderMoneyChart(moneyCtxElement, this._data);
+    this._typeChart = renderTypesChart(typeCtxElement, this._data);
+    this._timeChart = renderTimeSpendChart(timeCtxElement, this._data);
   }
 }

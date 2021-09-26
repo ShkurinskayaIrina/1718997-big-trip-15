@@ -6,14 +6,28 @@ export default class Events extends AbstractObserver {
     this._events = [];
   }
 
-  // записывает в модель
-  setEvents(updateType, events) {
-    this._events = events.slice();
+  setEvents(updateType, data) {
+    this._events = data.events.slice();
+    this._cities = data.cities.slice();
+    this._offers = data.offers.slice();
+    this._destinations = data.destinations.slice();
     this._notify(updateType);
   }
 
   getEvents() {
     return this._events;
+  }
+
+  getCities() {
+    return this._cities;
+  }
+
+  getOffers() {
+    return this._offers;
+  }
+
+  getDestinations() {
+    return this._destinations;
   }
 
   updateEvent(updateType, update) {
@@ -60,14 +74,12 @@ export default class Events extends AbstractObserver {
       {},
       event,
       {
-        // На клиенте дата хранится как экземпляр Date
         dateFrom: event.date_from !== null ? new Date(event.date_from) : event.date_from,
         dateTo: event.date_to !== null ? new Date(event.date_to) : event.date_to,
         basePrice: event.base_price,
         isFavorite: event.is_favorite,
       },
     );
-    // Ненужные ключи мы удаляем
     delete adaptedEvent['date_from'];
     delete adaptedEvent['date_to'];
     delete adaptedEvent['base_price'];
@@ -81,7 +93,6 @@ export default class Events extends AbstractObserver {
       {},
       event,
       {
-        // На сервере дата хранится в ISO формате
         'date_from': event.dateFrom instanceof Date ? event.dateFrom.toISOString() : null,
         'date_to': event.dateTo instanceof Date ? event.dateTo.toISOString() : null,
         'base_price': Number(event.basePrice),
@@ -89,7 +100,6 @@ export default class Events extends AbstractObserver {
       },
     );
 
-    // Ненужные ключи мы удаляем
     delete adaptedEvent.dateFrom;
     delete adaptedEvent.dateTo;
     delete adaptedEvent.basePrice;

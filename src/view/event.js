@@ -1,4 +1,3 @@
-///написать ф-цию подсчета времени в пути
 import AbstractView from '../view/abstract.js';
 import { formattingDateYMDHM, formattingDateYDM, formattingDateMD, formattingDateHM, countDurationEvent, separationDurationEvent } from '../utils/trip.js';
 
@@ -10,7 +9,7 @@ const creatEventOfferTemplate = (offers) =>
       <span class="event__offer-price">${price}</span>
     </li>`).join('');
 
-export const showEventTemplate = ({dateFrom, dateTo, destination, type, basePrice, isFavorite, offers}) =>{
+const createEventTemplate = ({dateFrom, dateTo, destination, type, basePrice, isFavorite, offers}) =>{
   let classFavorite = '';
   if (isFavorite) {
     classFavorite='event__favorite-btn--active';
@@ -51,25 +50,16 @@ export const showEventTemplate = ({dateFrom, dateTo, destination, type, basePric
   `;
 };
 export default class Event extends AbstractView {
-  constructor(tripEvent) {
+  constructor(tripEvent, additionalData) {
     super();
     this._tripEvent = tripEvent;
+    this._additionalData = additionalData;
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._editClickHandler = this._editClickHandler.bind(this);
   }
 
   getTemplate() {
-    return showEventTemplate(this._tripEvent);
-  }
-
-  _favoriteClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.favoriteClick();
-  }
-
-  _editClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.editClick();
+    return createEventTemplate(this._tripEvent, this._additionalData);
   }
 
   setFavoriteClickHandler(callback) {
@@ -80,5 +70,15 @@ export default class Event extends AbstractView {
   setEditClickHandler(callback) {
     this._callback.editClick = callback;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._editClickHandler);
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 }
