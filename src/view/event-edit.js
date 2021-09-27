@@ -227,8 +227,10 @@ export default class EventEdit extends SmartView {
       removeEventListener('submit', this._formSubmitHandler);
     eventEditTemplate.querySelector('.event__reset-btn').
       removeEventListener('click', this._formDeleteClickHandler);
-    eventEditTemplate.querySelector('.event__rollup-btn').
-      removeEventListener('click', this._rollUpClickHandler);
+    if (!this._data.isBlank) {
+      eventEditTemplate.querySelector('.event__rollup-btn').
+        removeEventListener('click', this._rollUpClickHandler);
+    }
     if (this._data.isOffers) {
       const offers = eventEditTemplate.querySelectorAll('.event__offer-checkbox');
       offers.forEach((offer) => {offer.removeEventListener('change', this._offersToggleHandler);});
