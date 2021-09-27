@@ -203,6 +203,7 @@ export default class EventEdit extends SmartView {
   removeElement() {
     super.removeElement();
     this._resetDatepicker();
+    this.removeHandlers();
   }
 
   restoreHandlers() {
@@ -212,6 +213,26 @@ export default class EventEdit extends SmartView {
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setDeleteClickHandler(this._callback.deleteClick);
     this.setRollUpClickHandler(this._callback.btnClick);
+  }
+
+  removeHandlers() {
+    const eventEditTemplate = this.getElement();
+    eventEditTemplate.querySelector('.event__type-list').
+      removeEventListener('click', this._eventTypeToggleHandler);
+    eventEditTemplate.querySelector('.event__field-group--destination').
+      removeEventListener('change', this._destinationToggleHandler);
+    eventEditTemplate.querySelector('.event__field-group--price')
+      .removeEventListener('change', this._priceToggleHandler);
+    eventEditTemplate.querySelector('form').
+      removeEventListener('submit', this._formSubmitHandler);
+    eventEditTemplate.querySelector('.event__reset-btn').
+      removeEventListener('click', this._formDeleteClickHandler);
+    eventEditTemplate.querySelector('.event__rollup-btn').
+      removeEventListener('click', this._rollUpClickHandler);
+    if (this._data.isOffers) {
+      const offers = eventEditTemplate.querySelectorAll('.event__offer-checkbox');
+      offers.forEach((offer) => {offer.removeEventListener('change', this._offersToggleHandler);});
+    }
   }
 
   setDeleteClickHandler(callback) {
